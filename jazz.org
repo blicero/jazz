@@ -1,0 +1,53 @@
+# -*- mode: org; fill-column: 78; -*-
+# Time-stamp: <2026-08-31 10:41:57 krylon>
+#
+#+TAGS: internals(i) ui(u) bug(b) feature(f)
+#+TAGS: database(d) design(e), meditation(m)
+#+TAGS: optimize(o) refactor(r) cleanup(c)
+#+TODO: TODO(t)  RESEARCH(r) IMPLEMENT(i) TEST(e) | DONE(d) FAILED(f) CANCELLED(c)
+#+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
+#+PRIORITIES: A G D
+
+* Jazz [0/0]
+  :PROPERTIES:
+  :COOKIE_DATA: todo recursive
+  :VISIBILITY: all
+  :END:
+** Clocktable
+   #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
+   #+CAPTION: Clock summary at [2026-08-31 Mo 10:40]
+   | Headline     | Time   |
+   |--------------+--------|
+   | *Total time* | *0:00* |
+   #+END:
+** Components [0/0]
+   :PROPERTIES:
+   :COOKIE_DATA: todo recursive
+   :VISIBILITY: all
+   :END:
+*** Model [0/0]
+    :PROPERTIES:
+    :COOKIE_DATA: todo recursive
+    :VISIBILITY: all
+    :END:
+*** Database [0/0]
+    :PROPERTIES:
+    :COOKIE_DATA: todo recursive
+    :VISIBILITY: all
+    :END:
+*** Scheduler [0/0]
+    :PROPERTIES:
+    :COOKIE_DATA: todo recursive
+    :VISIBILITY: all
+    :END:
+*** Monitor [0/0]
+    :PROPERTIES:
+    :COOKIE_DATA: todo recursive
+    :VISIBILITY: all
+    :END:
+** Features [0/0]
+   :PROPERTIES:
+   :COOKIE_DATA: todo recursive
+   :VISIBILITY: all
+   :END:
+** Bugs [0/0]
