@@ -1,0 +1,6 @@
+{{ define "%lmodule%" }}
+{{/* Created on %date% */}}
+{{/* Time-stamp: <2021-02-13 16:20:25 krylon> */}}
+
+
+{{ end }}
