@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-02 12:04:55 krylon>
+// Time-stamp: <2026-09-02 13:31:49 krylon>
 
 package database
 
@@ -16,6 +16,7 @@ import (
 	"github.com/blicero/jazz/common"
 	"github.com/blicero/jazz/model"
 	"github.com/blicero/jazz/model/predicate"
+	"github.com/davecgh/go-spew/spew"
 )
 
 const (
@@ -116,8 +117,37 @@ func TestJobAdd(t *testing.T) {
 			t.Fatalf("Failed to add Job %d: %s",
 				i+1,
 				err.Error())
+		} else if j.ID == 0 {
+			t.Fatal("Job has ID 0 after adding it - allegedly - successfully to the database")
 		}
 
 		tJobs = append(tJobs, j)
 	}
 } // func TestJobAdd(t *testing.T)
+
+func TestJobGet(t *testing.T) {
+	if tdb == nil || len(tJobs) != jCnt {
+		t.SkipNow()
+	}
+
+	for _, j1 := range tJobs {
+		var (
+			err error
+			j2  *model.Job
+		)
+
+		if j2, err = tdb.JobGet(j1.ID); err != nil {
+			t.Fatalf("Failed to load Job %d from database: %s",
+				j1.ID,
+				err.Error())
+		} else if j2 == nil {
+			t.Fatalf("db.JobGet(%d) did not return an error, but no Job, either",
+				j1.ID)
+		} else if !j1.Equal(j2) {
+			t.Fatalf("Job %d returned from database is not equal to the one we put in:\n%s\n%s",
+				j1.ID,
+				spew.Sdump(j1),
+				spew.Sdump(j2))
+		}
+	}
+} // func TestJobGet(t *testing.T)
