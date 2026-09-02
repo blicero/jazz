@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-08-31 10:07:57 krylon>
+// Time-stamp: <2026-09-01 18:52:57 krylon>
 
 //go:generate stringer -type=ID
 
@@ -15,15 +15,17 @@ type ID uint8
 
 const (
 	Job ID = iota
+	Database
 	Queue
-	Server
+	Monitor
 )
 
 // All returns all defined ID values.
 func All() []ID {
 	return []ID{
 		Job,
+		Database,
 		Queue,
-		Server,
+		Monitor,
 	}
 } // func All() []ID

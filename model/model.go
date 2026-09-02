@@ -2,12 +2,13 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-08-31 10:39:19 krylon>
+// Time-stamp: <2026-09-02 11:10:23 krylon>
 
 // Package model defines data types used throughout the application
 package model
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/blicero/jazz/model/predicate"
@@ -21,15 +22,27 @@ type Step struct {
 	TimeStarted  time.Time
 	TimeFinished time.Time
 	Status       int
+	Stdout       string
+	Stderr       string
 }
 
 // Job is a sequence of commands to be exected.
 type Job struct {
 	ID             int64
 	Name           string
+	WorkDir        string
+	Niceness       int64
+	IOPrio         int64
 	ScheduledStart time.Time
+	Deadline       time.Time
 	TimeStarted    time.Time
 	TimeFinished   time.Time
 	Env            map[string]string
 	Steps          []Step
+	CurStep        int64
+}
+
+// KeyStr returns a that contains the Job's ID, for use as a database key.
+func (j *Job) KeyStr() []byte {
+	return fmt.Appendf(nil, "%06d", j.ID)
 }
