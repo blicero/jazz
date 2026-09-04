@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 02. 2021 by Benjamin Walkenhorst
 // (c) 2021 Benjamin Walkenhorst
-// Time-stamp: <2026-08-31 10:31:40 krylon>
+// Time-stamp: <2026-09-03 13:30:48 krylon>
 
 //go:build ignore
 
@@ -61,26 +61,38 @@ var candidates = map[string][]string{
 		"common",
 		"logdomain",
 		"model/predicate",
+		"monitor/command",
 	},
 	"vet": {
 		"logdomain",
 		"common",
-		"model",
 		"model/predicate",
+		"model",
+		"database",
+		"monitor/command",
+		"monitor",
 	},
 	"lint": {
 		"logdomain",
 		"common",
-		"model",
 		"model/predicate",
+		"model",
+		"database",
+		"monitor/command",
+		"monitor",
 	},
 	"nilaway": {
 		"logdomain",
 		"common",
-		"model",
 		"model/predicate",
+		"model",
+		"database",
+		"monitor/command",
+		"monitor",
 	},
-	"test": {},
+	"test": {
+		"database",
+	},
 }
 
 // During the clean step, all files and folders that match any of these

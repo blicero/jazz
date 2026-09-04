@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-08-31 10:14:30 krylon>
+// Time-stamp: <2026-09-03 13:23:38 krylon>
 
 package common
 
@@ -41,7 +41,7 @@ const (
 	TimestampFormatSubSecond = "2006-01-02 15:04:05.0000 MST"
 	TimestampFormatDate      = "2006-01-02"
 	TimestampFormatTime      = "15:04:05"
-	HTTPTimeout              = time.Second * 10
+	TickInterval             = time.Millisecond * 2500
 )
 
 // LogLevels are the names of the log levels supported by the logger.
