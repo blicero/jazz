@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-04 10:22:20 krylon>
+// Time-stamp: <2026-09-04 12:04:31 krylon>
 
 // Package monitor implements the heart of the application, so to speak.
 package monitor
@@ -133,6 +133,7 @@ func (mon *Monitor) handleCommand(cmd command.Command) {
 	}
 } // func (mon *Monitor) handleCommand(cmd command.Command)
 
+// nolint: unused
 func (mon *Monitor) execute(job *model.Job) error {
 	// var (
 	// 	err error
