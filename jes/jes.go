@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 04. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-07 10:53:44 krylon>
+// Time-stamp: <2026-09-07 11:18:16 krylon>
 
 // Package jes ("Job Entry System") accepts jobs feeds them into the queue.
 package jes
@@ -10,6 +10,7 @@ package jes
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -21,6 +22,7 @@ import (
 	lua "github.com/Shopify/go-lua"
 	"github.com/blicero/jazz/common"
 	"github.com/blicero/jazz/logdomain"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/fsnotify/fsnotify"
 )
 
@@ -200,7 +202,6 @@ func (j *JES) processJob(path string) error {
 
 	script = buf.String()
 
-	// TODO Shebang-Zeile entfernen, so vorhanden
 	if sheBang.MatchString(script) {
 		script = sheBang.ReplaceAllString(script, "")
 	}
@@ -212,5 +213,20 @@ func (j *JES) processJob(path string) error {
 		return err
 	}
 
+	// TODO Now I need to somehow pull the Job definition out of the
+	//      Lua engine.
+	//      This going to get big time tedious.
+	j.luaDumpStack(lstate)
+
 	return nil
 } // func (j *JES) processJob(path string)
+
+// nolint: unused
+func (j *JES) luaDumpStack(l *lua.State) {
+	for i := l.Top(); i > 0; i-- {
+		// Trailing newline is not required, apparently.
+		fmt.Printf("Stackpos #%d: %s",
+			i,
+			spew.Sdump(l.ToValue(i)))
+	}
+} // func (j *JES) luaDumpStack(l *lua.State)
