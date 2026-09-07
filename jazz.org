@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-08-31 10:41:57 krylon>
+# Time-stamp: <2026-09-07 10:58:30 krylon>
 #
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
@@ -15,10 +15,18 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-08-31 Mo 10:40]
-   | Headline     | Time   |
-   |--------------+--------|
-   | *Total time* | *0:00* |
+   #+CAPTION: Clock summary at [2026-09-07 Mo 10:58]
+   | Headline               | Time    |         |      |      |
+   |------------------------+---------+---------+------+------|
+   | *Total time*           | *14:17* |         |      |      |
+   |------------------------+---------+---------+------+------|
+   | *Jazz [0/0]*           | *14:17* |         |      |      |
+   | \_  /Components [0/0]/ |         | /14:17/ |      |      |
+   | \_    Model [0/0]      |         |         | 0:39 |      |
+   | \_    Database [0/0]   |         |         | 6:20 |      |
+   | \_    Job Entry [0/0]  |         |         | 6:42 |      |
+   | \_      Lua FTW!       |         |         |      | 1:32 |
+   | \_    Monitor [0/0]    |         |         | 0:36 |      |
    #+END:
 ** Components [0/0]
    :PROPERTIES:
@@ -30,24 +38,79 @@
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
     :END:
+    :LOGBOOK:
+    CLOCK: [2026-09-01 Di 18:34]--[2026-09-01 Di 19:13] =>  0:39
+    :END:
 *** Database [0/0]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
     :END:
-*** Scheduler [0/0]
+    :LOGBOOK:
+    CLOCK: [2026-09-02 Mi 10:56]--[2026-09-02 Mi 13:33] =>  2:37
+    CLOCK: [2026-09-01 Di 19:13]--[2026-09-01 Di 22:56] =>  3:43
+    :END:
+    I think I might want to not use SQLite this time. Or do I?
+    I definitely do need some kind of support for persistence. I /could/ use a
+    kv-store, that should probably suffice for this project.
+*** Job Entry [0/0]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
     :END:
+    :LOGBOOK:
+    CLOCK: [2026-09-05 Sa 11:29]--[2026-09-05 Sa 13:01] =>  1:32
+    CLOCK: [2026-09-04 Fr 10:23]--[2026-09-04 Fr 14:01] =>  3:38
+    :END:
+**** Lua FTW!
+     :LOGBOOK:
+     CLOCK: [2026-09-07 Mo 10:15]--[2026-09-07 Mo 10:58] =>  0:43
+     CLOCK: [2026-09-05 Sa 16:56]--[2026-09-05 Sa 17:45] =>  0:49
+     :END:
 *** Monitor [0/0]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
+    :END:
+    :LOGBOOK:
+    CLOCK: [2026-09-04 Fr 10:23]--[2026-09-04 Fr 10:23] =>  0:00
+    CLOCK: [2026-09-03 Do 12:54]--[2026-09-03 Do 13:30] =>  0:36
     :END:
 ** Features [0/0]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
    :END:
+*** JCL
+**** Lua FTW?
+     Okay, hear me out - Lua? I hadn't thought of that until just now, but
+     there is a port of Lua 5.1 to Go. That would solve a bunch of problems at
+     once.
+     It appears gopher-lua is slightly more active.
+     https://github.com/yuin/gopher-lua
+     https://github.com/Shopify/go-lua
+*** Submitting Jobs [0/0]
+    The name "Jazz" is a play on the JES2/JES3 _Job Entry Systems_ on IBM
+    z/OS. I mention this because I want to allow for some flexibility
+    regarding the way I submit jobs to the queue.
+    But I only have some very vague ideas right now.
+    I definitely want a CLI interface like ts. But I also want to support a
+    kind of JCL for multi-step jobs.
+    Last but not least, submitting jobs via a web interface over a network
+    connection would be cool (but low-priority at this point).
+*** Multi-step jobs [0/0]
+    :PROPERTIES:
+    :COOKIE_DATA: todo recursive
+    :VISIBILITY: all
+    :END:
+    I want a job to not be just a single command, but - at least optionally -
+    a sequence of commands that can be linked - loosely - like commands in
+    shell, e.g. =cmdA && cmdB || cmdC=
+**** Resumable jobs
+     Also, I want to be able to suspend a job between steps and resume it
+     later.
+*** Parallel execution [0/0]
+    It would be nice if I could define for steps within a job to be run in
+    parallel. But that will add a lot of complexity, so I'm keeping that for
+    later.
 ** Bugs [0/0]
