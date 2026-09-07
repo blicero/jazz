@@ -1,5 +1,5 @@
 # Binaries for programs and plugins
-# Time-stamp: <2026-08-17 15:10:05 krylon>
+# Time-stamp: <2026-09-07 10:55:21 krylon>
 *.exe
 *.dll
 *.so
@@ -22,19 +22,8 @@ bak.*
 *_string.go
 *_gen.go
 
-.mypy.cache
-__pycache__
-
-*.pyc
-
 # Output of profiler runs
 *.prof
 
-# Files left by tesseract
-*.bin
-*.dat
-
-monkeytype.sqlite3
-
 sternengeschichten
-
+jazz
