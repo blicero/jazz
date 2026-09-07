@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-02 13:30:08 krylon>
+// Time-stamp: <2026-09-06 16:44:53 krylon>
 
 // Package model defines data types used throughout the application
 package model
@@ -68,6 +68,13 @@ type Job struct {
 	Steps          []Step
 	CurStep        int64
 }
+
+// Ready returns true if the Job is ready to be exected right now.
+func (j *Job) Ready() bool {
+	var now = time.Now().Truncate(time.Second)
+	return j.ScheduledStart.Before(now) ||
+		j.ScheduledStart.Equal(now)
+} // func (j *Job) Ready() bool
 
 // KeyStr returns a that contains the Job's ID, for use as a database key.
 func (j *Job) KeyStr() []byte {
