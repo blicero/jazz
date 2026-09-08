@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-09-09 00:37:30 krylon>
+# Time-stamp: <2026-09-09 00:45:19 krylon>
 #
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
@@ -8,30 +8,30 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Jazz [0/0]
+* Jazz [1/1]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-09-09 Mi 00:37]
+   #+CAPTION: Clock summary at [2026-09-09 Mi 00:45]
    | Headline                                    | Time    |         |       |      |
    |---------------------------------------------+---------+---------+-------+------|
    | *Total time*                                | *21:37* |         |       |      |
    |---------------------------------------------+---------+---------+-------+------|
-   | *Jazz [0/0]*                                | *21:37* |         |       |      |
-   | \_  /Components [0/0]/                      |         | /21:37/ |       |      |
+   | *Jazz [1/1]*                                | *21:37* |         |       |      |
+   | \_  /Components [1/1]/                      |         | /21:37/ |       |      |
    | \_    Model [0/0]                           |         |         |  0:39 |      |
    | \_    Database [0/0]                        |         |         |  6:20 |      |
    | \_    Job Entry [0/0]                       |         |         | 13:40 |      |
    | \_      Shell                               |         |         |       | 5:49 |
    | \_      Lua FTW!                            |         |         |       | 1:42 |
    | \_    Monitor [0/0]                         |         |         |  0:36 |      |
-   | \_    Main/Common [0/1]                     |         |         |  0:22 |      |
+   | \_    Main/Common [1/1]                     |         |         |  0:22 |      |
    | \_      Supress logging to terminal when... |         |         |       | 0:22 |
    #+END:
-** Components [0/0]
+** Components [1/1]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -93,12 +93,13 @@
     CLOCK: [2026-09-04 Fr 10:23]--[2026-09-04 Fr 10:23] =>  0:00
     CLOCK: [2026-09-03 Do 12:54]--[2026-09-03 Do 13:30] =>  0:36
     :END:
-*** Main/Common [0/1]
+*** Main/Common [1/1]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
     :END:
-**** TODO Supress logging to terminal when Shell is running
+**** DONE Supress logging to terminal when Shell is running
+     CLOSED: [2026-09-09 Mi 00:45]
      :LOGBOOK:
      CLOCK: [2026-09-08 Di 11:28]--[2026-09-08 Di 11:50] =>  0:22
      :END:
