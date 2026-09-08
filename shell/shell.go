@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 07. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-08 11:41:47 krylon>
+// Time-stamp: <2026-09-08 15:08:15 krylon>
 
 package shell
 
@@ -11,6 +11,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"slices"
 	"strings"
 
@@ -22,6 +23,8 @@ import (
 )
 
 const pprompt = "~> "
+
+var noise = regexp.MustCompile("[~#]")
 
 // Shell is a simple command line shell that prompts for commands to execute
 // as a Job.
@@ -131,11 +134,14 @@ func (s *Shell) completerExecutables(d prompt.Document) []prompt.Suggest {
 		executables = append(executables, files...)
 	}
 
-	word = d.GetWordAfterCursor()
+	word = d.GetWordBeforeCursor()
 
 	for _, ex := range executables {
 		var base = filepath.Base(ex)
-		if strings.HasPrefix(base, word) {
+
+		if noise.MatchString(base) {
+			continue
+		} else if strings.HasPrefix(base, word) {
 			s := prompt.Suggest{
 				Text:        base,
 				Description: ex,
@@ -172,7 +178,7 @@ func (s *Shell) readFolder(path string) ([]string, error) {
 
 	info = slices.DeleteFunc(info, func(i os.FileInfo) bool {
 		return i.Mode().IsRegular() &&
-			i.Mode().Perm()&0111 != 0
+			i.Mode().Perm()&0111 == 0111
 	})
 
 	files = functional.Map(func(i os.FileInfo) string {
