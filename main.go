@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-04 13:28:13 krylon>
+// Time-stamp: <2026-09-08 11:13:42 krylon>
 
 package main
 
@@ -16,6 +16,8 @@ import (
 
 	"github.com/blicero/jazz/common"
 	"github.com/blicero/jazz/jes"
+	"github.com/blicero/jazz/model"
+	"github.com/blicero/jazz/shell"
 )
 
 func main() {
@@ -25,10 +27,10 @@ func main() {
 		common.BuildStamp.Format(common.TimestampFormat))
 
 	var (
-		err     error
-		baseDir string
-		jesDir  string
-		watcher *jes.JES
+		err      error
+		doSubmit bool
+		baseDir  string
+		watcher  *jes.JES
 	)
 
 	flag.StringVar(
@@ -37,12 +39,12 @@ func main() {
 		common.BaseDir,
 		"directory for semi-private files, logs, job queue, spooling, etc.",
 	)
-	flag.StringVar(
-		&jesDir,
-		"jsa",
-		fmt.Sprintf("/tmp/jazz.%s.d",
-			os.Getenv("USER")),
-		"directory for job entry",
+
+	flag.BoolVar(
+		&doSubmit,
+		"submit",
+		false,
+		"prompt for a new Job to submit",
 	)
 
 	flag.Parse()
@@ -53,11 +55,40 @@ func main() {
 			"cannot initialize environment - %s\n",
 			err.Error())
 		os.Exit(1)
-	} else if watcher, err = jes.Create(jesDir); err != nil {
-		fmt.Fprintf(os.Stderr, "cannot create JES monitor in %s: %s\n",
-			jesDir,
-			err.Error())
-		os.Exit(1)
+	}
+
+	if doSubmit {
+		var (
+			s *shell.Shell
+			j *model.Job
+		)
+
+		if s, err = shell.Create(); err != nil {
+			fmt.Fprintf(
+				os.Stderr,
+				"Failed to create Shell: %s\n",
+				err.Error())
+			os.Exit(1)
+		} else if j, err = s.Run(); err != nil {
+			fmt.Fprintf(
+				os.Stderr,
+				"Error prompting for Job: %s\n",
+				err.Error())
+			os.Exit(1)
+		}
+
+		fmt.Println("Submit Job:")
+		for _, step := range j.Steps {
+			fmt.Printf(">> %s\n",
+				step.Command)
+		}
+
+		// do something!
+		fmt.Println("Sleepy now")
+		time.Sleep(time.Second * 10)
+
+		// later:
+		os.Exit(0)
 	}
 
 	sigQ := make(chan os.Signal, 1)
