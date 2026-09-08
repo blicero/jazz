@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 04. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-07 11:22:46 krylon>
+// Time-stamp: <2026-09-08 11:10:39 krylon>
 
 // Package jes ("Job Entry System") accepts jobs feeds them into the queue.
 package jes
@@ -11,7 +11,6 @@ import (
 	"errors"
 	"log"
 	"os"
-	"regexp"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -23,11 +22,6 @@ import (
 )
 
 const readJCLDelay = time.Millisecond * 500
-
-var (
-	jclPat  = regexp.MustCompile("[.](?i:jcl|lua|job)$")
-	sheBang = regexp.MustCompile(`(?m)\A#!.*$`)
-)
 
 // JES accepts Job definitions, processes them, and hands them to the Job queue.
 type JES struct {
@@ -122,9 +116,9 @@ func (j *JES) handleEvent(ev fsnotify.Event) {
 		j.log.Printf("[TRACE] New file %s\n",
 			ev.Name)
 
-		if jclPat.MatchString(ev.Name) {
-			j.flist[ev.Name] = time.Now()
-		}
+		// if jclPat.MatchString(ev.Name) {
+		// 	j.flist[ev.Name] = time.Now()
+		// }
 	case fsnotify.Write:
 		j.log.Printf("[TRACE] File %s was written to\n",
 			ev.Name)
@@ -159,5 +153,7 @@ func (j *JES) checkJCL() {
 } // func (j *JES) checkJCL()
 
 func (j *JES) processJob(path string) error {
+	j.log.Printf("[TRACE] Process Job %s\n",
+		path)
 	return krylib.ErrNotImplemented
 } // func (j *JES) processJob(path string)
