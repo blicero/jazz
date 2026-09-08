@@ -2,11 +2,12 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 07. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-08 11:01:29 krylon>
+// Time-stamp: <2026-09-08 11:41:47 krylon>
 
 package shell
 
 import (
+	"errors"
 	"log"
 	"os"
 	"path/filepath"
@@ -93,6 +94,11 @@ func (s *Shell) executor(input string) {
 	s.log.Printf("[TRACE] Executing the following command: %s\n",
 		input)
 
+	var step = model.Step{
+		Command: input,
+	}
+
+	s.j.Steps = append(s.j.Steps, step)
 } // func (s *Shell) executor(input string
 
 // completerExecutables looks up all executable files in the folders from PATH
@@ -151,6 +157,10 @@ func (s *Shell) readFolder(path string) ([]string, error) {
 	)
 
 	if fh, err = os.Open(path); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return []string{}, nil
+		}
+
 		return nil, err
 	}
 
@@ -162,7 +172,7 @@ func (s *Shell) readFolder(path string) ([]string, error) {
 
 	info = slices.DeleteFunc(info, func(i os.FileInfo) bool {
 		return i.Mode().IsRegular() &&
-			i.Mode()&0111 != 0
+			i.Mode().Perm()&0111 != 0
 	})
 
 	files = functional.Map(func(i os.FileInfo) string {
