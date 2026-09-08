@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-08 11:13:42 krylon>
+// Time-stamp: <2026-09-08 11:45:48 krylon>
 
 package main
 
@@ -62,6 +62,8 @@ func main() {
 			s *shell.Shell
 			j *model.Job
 		)
+
+		common.Interactive.Store(true)
 
 		if s, err = shell.Create(); err != nil {
 			fmt.Fprintf(

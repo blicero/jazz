@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-03 13:23:38 krylon>
+// Time-stamp: <2026-09-08 11:46:24 krylon>
 
 package common
 
@@ -16,6 +16,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync/atomic"
 	"time"
 
 	"github.com/blicero/krylib"
@@ -96,6 +97,10 @@ var CfgPath = filepath.Join(BaseDir, fmt.Sprintf("%s.toml", strings.ToLower(AppN
 
 var SpoolDir = filepath.Join(BaseDir, "spool")
 
+// Interactive is true if we are running a Shell to prompt commands for
+// Job submission.
+var Interactive atomic.Bool
+
 // InitApp performs some basic preparations for the application to run.
 // Currently, this means creating the BaseDir folder.
 func InitApp() error {
@@ -171,10 +176,10 @@ func GetLogger(domain logdomain.ID) (*log.Logger, error) { // nolint: interfacer
 		writer io.Writer
 	)
 
-	if Debug {
-		writer = io.MultiWriter(os.Stdout, logfile)
-	} else {
+	if Interactive.Load() {
 		writer = io.MultiWriter(logfile)
+	} else {
+		writer = io.MultiWriter(os.Stdout, logfile)
 	}
 
 	var lvl = PackageLevels[domain]
@@ -189,8 +194,8 @@ func GetLogger(domain logdomain.ID) (*log.Logger, error) { // nolint: interfacer
 	return logger, nil
 } // func GetLogger(name string) (*log.Logger, error)
 
-// GetLoggerStdout returns a Logger that will log to stdout AND the log file.
-func GetLoggerStdout(domain logdomain.ID) (*log.Logger, error) { // nolint: interfacer
+// GetLoggerQuiet returns a Logger that will log only to the log file.
+func GetLoggerQuiet(domain logdomain.ID) (*log.Logger, error) { // nolint: interfacer
 	var err error
 
 	if err = InitApp(); err != nil {
@@ -199,7 +204,6 @@ func GetLoggerStdout(domain logdomain.ID) (*log.Logger, error) { // nolint: inte
 
 	var (
 		logfile *os.File
-		writer  io.Writer
 		lvl     logutils.LogLevel
 		logName = fmt.Sprintf("%s ",
 			strings.ToLower(domain.String()))
@@ -211,14 +215,12 @@ func GetLoggerStdout(domain logdomain.ID) (*log.Logger, error) { // nolint: inte
 		return nil, errors.New(msg)
 	}
 
-	writer = io.MultiWriter(os.Stdout, logfile)
-
 	lvl = PackageLevels[domain]
 
 	filter := &logutils.LevelFilter{
 		Levels:   LogLevels,
 		MinLevel: lvl,
-		Writer:   writer,
+		Writer:   logfile,
 	}
 
 	logger := log.New(filter, logName, log.Ldate|log.Ltime|log.Lshortfile|log.Lmsgprefix)
