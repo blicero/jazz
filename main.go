@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-08 11:45:48 krylon>
+// Time-stamp: <2026-09-08 15:13:21 krylon>
 
 package main
 
@@ -86,8 +86,8 @@ func main() {
 		}
 
 		// do something!
-		fmt.Println("Sleepy now")
-		time.Sleep(time.Second * 10)
+		// fmt.Println("Sleepy now")
+		// time.Sleep(time.Second * 10)
 
 		// later:
 		os.Exit(0)
