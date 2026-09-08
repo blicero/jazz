@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-09-08 11:16:46 krylon>
+# Time-stamp: <2026-09-08 11:50:17 krylon>
 #
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
@@ -15,19 +15,21 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-09-08 Di 11:16]
-   | Headline               | Time    |         |      |      |
-   |------------------------+---------+---------+------+------|
-   | *Total time*           | *16:35* |         |      |      |
-   |------------------------+---------+---------+------+------|
-   | *Jazz [0/0]*           | *16:35* |         |      |      |
-   | \_  /Components [0/0]/ |         | /16:35/ |      |      |
-   | \_    Model [0/0]      |         |         | 0:39 |      |
-   | \_    Database [0/0]   |         |         | 6:20 |      |
-   | \_    Job Entry [0/0]  |         |         | 9:00 |      |
-   | \_      Shell          |         |         |      | 1:09 |
-   | \_      Lua FTW!       |         |         |      | 1:42 |
-   | \_    Monitor [0/0]    |         |         | 0:36 |      |
+   #+CAPTION: Clock summary at [2026-09-08 Di 11:50]
+   | Headline                                    | Time    |         |      |      |
+   |---------------------------------------------+---------+---------+------+------|
+   | *Total time*                                | *16:57* |         |      |      |
+   |---------------------------------------------+---------+---------+------+------|
+   | *Jazz [0/0]*                                | *16:57* |         |      |      |
+   | \_  /Components [0/0]/                      |         | /16:57/ |      |      |
+   | \_    Model [0/0]                           |         |         | 0:39 |      |
+   | \_    Database [0/0]                        |         |         | 6:20 |      |
+   | \_    Job Entry [0/0]                       |         |         | 9:00 |      |
+   | \_      Shell                               |         |         |      | 1:09 |
+   | \_      Lua FTW!                            |         |         |      | 1:42 |
+   | \_    Monitor [0/0]                         |         |         | 0:36 |      |
+   | \_    Main/Common [0/1]                     |         |         | 0:22 |      |
+   | \_      Supress logging to terminal when... |         |         |      | 0:22 |
    #+END:
 ** Components [0/0]
    :PROPERTIES:
@@ -89,6 +91,15 @@
     CLOCK: [2026-09-04 Fr 10:23]--[2026-09-04 Fr 10:23] =>  0:00
     CLOCK: [2026-09-03 Do 12:54]--[2026-09-03 Do 13:30] =>  0:36
     :END:
+*** Main/Common [0/1]
+    :PROPERTIES:
+    :COOKIE_DATA: todo recursive
+    :VISIBILITY: all
+    :END:
+**** TODO Supress logging to terminal when Shell is running
+     :LOGBOOK:
+     CLOCK: [2026-09-08 Di 11:28]--[2026-09-08 Di 11:50] =>  0:22
+     :END:
 ** Features [0/0]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
