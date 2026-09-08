@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 07. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-08 15:08:15 krylon>
+// Time-stamp: <2026-09-09 00:37:39 krylon>
 
 package shell
 
@@ -20,6 +20,7 @@ import (
 	"github.com/blicero/jazz/logdomain"
 	"github.com/blicero/jazz/model"
 	prompt "github.com/c-bata/go-prompt"
+	"github.com/google/shlex"
 )
 
 const pprompt = "~> "
@@ -103,6 +104,32 @@ func (s *Shell) executor(input string) {
 
 	s.j.Steps = append(s.j.Steps, step)
 } // func (s *Shell) executor(input string
+
+func (s *Shell) completer(d prompt.Document) []prompt.Suggest {
+	var (
+		err         error
+		line        string
+		tokens      []string
+		suggestions = make([]prompt.Suggest, 0)
+	)
+
+	line = d.CurrentLine()
+	if tokens, err = shlex.Split(line); err != nil {
+		s.log.Printf("[ERROR] Cannot tokenize input (%s): %s\n",
+			line,
+			err.Error())
+		return suggestions
+	}
+
+	if len(tokens) == 1 {
+		// complete name of executable
+		return s.completerExecutables(d)
+	}
+
+	var word = d.GetWordBeforeCursor()
+
+	return suggestions
+} // func (s *Shell) completer(d prompt.Document) []prompt.Suggest
 
 // completerExecutables looks up all executable files in the folders from PATH
 // and returns the ones that match the text typed so far.

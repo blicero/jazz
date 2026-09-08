@@ -21,6 +21,7 @@ require (
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
+	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/klauspost/compress v1.17.11 // indirect
 	github.com/lithammer/shortuuid/v4 v4.2.0 // indirect
