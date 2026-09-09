@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 07. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-09 00:37:39 krylon>
+// Time-stamp: <2026-09-09 10:13:16 krylon>
 
 package shell
 
@@ -71,7 +71,7 @@ func Create() (*Shell, error) {
 
 	s.shell = prompt.New(
 		s.executor,
-		s.completerExecutables,
+		s.completer,
 		prompt.OptionPrefix(pprompt))
 
 	return s, nil
@@ -126,7 +126,55 @@ func (s *Shell) completer(d prompt.Document) []prompt.Suggest {
 		return s.completerExecutables(d)
 	}
 
-	var word = d.GetWordBeforeCursor()
+	var (
+		word = d.GetWordBeforeCursor()
+		idx  = slices.Index(tokens, word)
+	)
+
+	if idx == -1 {
+		// 🤷 Now what?
+		s.log.Printf("[DEBUG] Word %q was not found in tokens (%#v)\n",
+			word,
+			tokens)
+		return suggestions
+	}
+
+	// If it's not the first word, attempt to complete a filename.
+	var (
+		fh    *os.File
+		cwd   string
+		files []string
+	)
+
+	if cwd, err = os.Getwd(); err != nil {
+		s.log.Printf("[ERROR] Cannot query current directory from OS: %s\n",
+			err.Error())
+		return suggestions
+	} else if fh, err = os.Open(cwd); err != nil {
+		s.log.Printf("[ERROR] Cannot open directory %s: %s\n",
+			cwd,
+			err.Error())
+		return suggestions
+	}
+
+	defer fh.Close() // nolint: errcheck
+
+	if files, err = fh.Readdirnames(-1); err != nil {
+		s.log.Printf("[ERROR] Cannot from contents of directory %s: %s\n",
+			cwd,
+			err.Error())
+		return suggestions
+	}
+
+	for _, file := range files {
+		if strings.HasPrefix(file, word) && !noise.MatchString(file) {
+			s := prompt.Suggest{
+				Text:        file,
+				Description: filepath.Join(cwd, file),
+			}
+			suggestions = append(suggestions, s)
+		}
+	}
 
 	return suggestions
 } // func (s *Shell) completer(d prompt.Document) []prompt.Suggest
