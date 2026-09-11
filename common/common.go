@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-08 11:46:24 krylon>
+// Time-stamp: <2026-09-09 10:20:42 krylon>
 
 package common
 
@@ -97,6 +97,8 @@ var CfgPath = filepath.Join(BaseDir, fmt.Sprintf("%s.toml", strings.ToLower(AppN
 
 var SpoolDir = filepath.Join(BaseDir, "spool")
 
+var HistPath = filepath.Join(BaseDir, "shell_history")
+
 // Interactive is true if we are running a Shell to prompt commands for
 // Job submission.
 var Interactive atomic.Bool
@@ -115,6 +117,7 @@ func InitApp() error {
 	LogPath = filepath.Join(BaseDir, fmt.Sprintf("%s.log", strings.ToLower(AppName)))
 	DbPath = filepath.Join(BaseDir, fmt.Sprintf("%s.db", strings.ToLower(AppName)))
 	CfgPath = filepath.Join(BaseDir, fmt.Sprintf("%s.toml", strings.ToLower(AppName)))
+	HistPath = filepath.Join(BaseDir, "shell_history")
 
 	return nil
 } // func InitApp() error
@@ -136,6 +139,7 @@ func SetBaseDir(path string) error {
 	DbPath = filepath.Join(BaseDir, fmt.Sprintf("%s.db", strings.ToLower(AppName)))
 	CfgPath = filepath.Join(BaseDir, fmt.Sprintf("%s.toml", strings.ToLower(AppName)))
 	SpoolDir = filepath.Join(BaseDir, "spool")
+	HistPath = filepath.Join(BaseDir, "shell_history")
 
 	var (
 		err error
