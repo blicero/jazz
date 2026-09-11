@@ -2,12 +2,14 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 07. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-09 10:13:16 krylon>
+// Time-stamp: <2026-09-11 11:32:10 krylon>
 
 package shell
 
 import (
+	"bytes"
 	"errors"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -25,22 +27,29 @@ import (
 
 const pprompt = "~> "
 
-var noise = regexp.MustCompile("[~#]")
+var (
+	noise   = regexp.MustCompile("[~#]")
+	farPath = regexp.MustCompile("^[.]{0,2}/")
+)
 
 // Shell is a simple command line shell that prompts for commands to execute
 // as a Job.
 type Shell struct {
-	log   *log.Logger
-	shell *prompt.Prompt
-	j     *model.Job
+	log         *log.Logger
+	shell       *prompt.Prompt
+	j           *model.Job
+	histfile    *os.File
+	pathFolders []string
 }
 
 // Create creates (well, duh) and returns a fresh Shell.
 func Create() (*Shell, error) {
 	var (
-		err error
-		env []string
-		s   = &Shell{
+		err          error
+		buf          bytes.Buffer
+		env, history []string
+		path         string
+		s            = &Shell{
 			j: &model.Job{
 				Steps: make([]model.Step, 0),
 				Env:   make(map[string]string),
@@ -52,8 +61,36 @@ func Create() (*Shell, error) {
 		return nil, err
 	} else if s.j.WorkDir, err = os.Getwd(); err != nil {
 		return nil, err
+	} else if s.histfile, err = os.OpenFile(
+		common.HistPath,
+		os.O_RDWR|os.O_CREATE|os.O_APPEND|os.O_SYNC,
+		0644); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			history = make([]string, 0)
+			goto ENV
+		}
+		s.log.Printf("[ERROR] Cannot open history file %s for reading: %s\n",
+			common.HistPath,
+			err.Error())
+		return nil, err
 	}
 
+	if _, err = io.Copy(&buf, s.histfile); err != nil {
+		s.log.Printf("[ERROR] Failed to read history file %s: %s\n",
+			common.HistPath,
+			err.Error())
+		return nil, err
+	}
+
+	history = strings.Split(buf.String(), "\n")
+
+	if path = os.Getenv("PATH"); path == "" {
+		s.log.Printf("[ERROR] Environment variable PATH is empty\n")
+	} else {
+		s.pathFolders = strings.Split(path, ":")
+	}
+
+ENV:
 	env = os.Environ()
 
 	for _, v := range env {
@@ -72,7 +109,8 @@ func Create() (*Shell, error) {
 	s.shell = prompt.New(
 		s.executor,
 		s.completer,
-		prompt.OptionPrefix(pprompt))
+		prompt.OptionPrefix(pprompt),
+		prompt.OptionHistory(history))
 
 	return s, nil
 } // func Create() (*Shell, error)
@@ -95,14 +133,26 @@ func (s *Shell) Run() (j *model.Job, e error) {
 }
 
 func (s *Shell) executor(input string) {
-	s.log.Printf("[TRACE] Executing the following command: %s\n",
+	s.log.Printf("[TRACE] Executing: %s\n",
 		input)
 
-	var step = model.Step{
-		Command: input,
-	}
+	var (
+		err  error
+		step = model.Step{
+			Command: input,
+		}
+	)
 
 	s.j.Steps = append(s.j.Steps, step)
+
+	if !strings.HasSuffix(input, "\n") {
+		input = input + "\n"
+	}
+
+	if _, err = s.histfile.Write([]byte(input)); err != nil {
+		s.log.Printf("[ERROR] Cannot append to history file: %s\n",
+			err.Error())
+	}
 } // func (s *Shell) executor(input string
 
 func (s *Shell) completer(d prompt.Document) []prompt.Suggest {
@@ -114,14 +164,16 @@ func (s *Shell) completer(d prompt.Document) []prompt.Suggest {
 	)
 
 	line = d.CurrentLine()
+	s.log.Printf("[DEBUG] Complete current line: %s\n",
+		line)
 	if tokens, err = shlex.Split(line); err != nil {
 		s.log.Printf("[ERROR] Cannot tokenize input (%s): %s\n",
 			line,
 			err.Error())
 		return suggestions
-	}
-
-	if len(tokens) == 1 {
+	} else if len(tokens) == 0 {
+		return suggestions
+	} else if len(tokens) == 1 && !farPath.MatchString(tokens[0]) {
 		// complete name of executable
 		return s.completerExecutables(d)
 	}
@@ -131,28 +183,44 @@ func (s *Shell) completer(d prompt.Document) []prompt.Suggest {
 		idx  = slices.Index(tokens, word)
 	)
 
-	if idx == -1 {
-		// 🤷 Now what?
-		s.log.Printf("[DEBUG] Word %q was not found in tokens (%#v)\n",
-			word,
-			tokens)
+	s.log.Printf("[TRACE] word = %s idx = %d, tokens = %#v\n",
+		word,
+		idx,
+		tokens)
+
+	if word == "" {
 		return suggestions
 	}
 
 	// If it's not the first word, attempt to complete a filename.
 	var (
-		fh    *os.File
-		cwd   string
-		files []string
+		fh       *os.File
+		cwd, dir string
+		files    []string
 	)
 
 	if cwd, err = os.Getwd(); err != nil {
 		s.log.Printf("[ERROR] Cannot query current directory from OS: %s\n",
 			err.Error())
 		return suggestions
-	} else if fh, err = os.Open(cwd); err != nil {
+	}
+
+	// If the input is an absolute or relative path, we need to chase that down
+	if filepath.IsLocal(word) {
+		dir = cwd
+	} else if farPath.MatchString(word) {
+		dir = filepath.Dir(word)
+	} else {
+		dir = filepath.Clean(filepath.Join(cwd, word))
+	}
+
+	if fh, err = os.Open(dir); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return suggestions
+		}
+
 		s.log.Printf("[ERROR] Cannot open directory %s: %s\n",
-			cwd,
+			dir,
 			err.Error())
 		return suggestions
 	}
@@ -183,20 +251,13 @@ func (s *Shell) completer(d prompt.Document) []prompt.Suggest {
 // and returns the ones that match the text typed so far.
 func (s *Shell) completerExecutables(d prompt.Document) []prompt.Suggest {
 	var (
-		err                      error
-		sugg                     = []prompt.Suggest{}
-		path, word               string
-		executables, pathFolders []string
+		err         error
+		sugg        = []prompt.Suggest{}
+		word        string
+		executables []string
 	)
 
-	if path = os.Getenv("PATH"); path == "" {
-		s.log.Printf("[ERROR] Environment variable PATH is empty\n")
-		return sugg
-	}
-
-	pathFolders = strings.Split(path, ":")
-
-	for _, dir := range pathFolders {
+	for _, dir := range s.pathFolders {
 		var files []string
 
 		if files, err = s.readFolder(dir); err != nil {
@@ -210,6 +271,9 @@ func (s *Shell) completerExecutables(d prompt.Document) []prompt.Suggest {
 	}
 
 	word = d.GetWordBeforeCursor()
+
+	s.log.Printf("[TRACE] Looking for executables like %q\n",
+		word)
 
 	for _, ex := range executables {
 		var base = filepath.Base(ex)
