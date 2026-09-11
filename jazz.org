@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-09-09 00:45:19 krylon>
+# Time-stamp: <2026-09-11 11:53:08 krylon>
 #
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
@@ -8,30 +8,32 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Jazz [1/1]
+* Jazz [2/3]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-09-09 Mi 00:45]
-   | Headline                                    | Time    |         |       |      |
-   |---------------------------------------------+---------+---------+-------+------|
-   | *Total time*                                | *21:37* |         |       |      |
-   |---------------------------------------------+---------+---------+-------+------|
-   | *Jazz [1/1]*                                | *21:37* |         |       |      |
-   | \_  /Components [1/1]/                      |         | /21:37/ |       |      |
-   | \_    Model [0/0]                           |         |         |  0:39 |      |
-   | \_    Database [0/0]                        |         |         |  6:20 |      |
-   | \_    Job Entry [0/0]                       |         |         | 13:40 |      |
-   | \_      Shell                               |         |         |       | 5:49 |
-   | \_      Lua FTW!                            |         |         |       | 1:42 |
-   | \_    Monitor [0/0]                         |         |         |  0:36 |      |
-   | \_    Main/Common [1/1]                     |         |         |  0:22 |      |
-   | \_      Supress logging to terminal when... |         |         |       | 0:22 |
+   #+CAPTION: Clock summary at [2026-09-11 Fr 11:53]
+   | Headline                                    | Time      |           |       |      |      |
+   |---------------------------------------------+-----------+-----------+-------+------+------|
+   | *Total time*                                | *1d 0:38* |           |       |      |      |
+   |---------------------------------------------+-----------+-----------+-------+------+------|
+   | *Jazz [2/3]*                                | *1d 0:38* |           |       |      |      |
+   | \_  /Components [2/3]/                      |           | /1d 0:38/ |       |      |      |
+   | \_    Model [0/0]                           |           |           |  0:39 |      |      |
+   | \_    Database [0/0]                        |           |           |  6:20 |      |      |
+   | \_    Job Entry [1/2]                       |           |           | 16:41 |      |      |
+   | \_      Shell [1/2]                         |           |           |       | 8:50 |      |
+   | \_        Intelligent Completion            |           |           |       |      | 1:32 |
+   | \_        History                           |           |           |       |      | 1:05 |
+   | \_      Lua FTW!                            |           |           |       | 1:42 |      |
+   | \_    Monitor [0/0]                         |           |           |  0:36 |      |      |
+   | \_    Main/Common [1/1]                     |           |           |  0:22 |      |      |
+   | \_      Supress logging to terminal when... |           |           |       | 0:22 |      |
    #+END:
-** Components [1/1]
+** Components [2/3]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -56,7 +58,7 @@
     I think I might want to not use SQLite this time. Or do I?
     I definitely do need some kind of support for persistence. I /could/ use a
     kv-store, that should probably suffice for this project.
-*** Job Entry [0/0]
+*** Job Entry [1/2]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -67,12 +69,27 @@
     CLOCK: [2026-09-05 Sa 11:29]--[2026-09-05 Sa 13:01] =>  1:32
     CLOCK: [2026-09-04 Fr 10:23]--[2026-09-04 Fr 14:01] =>  3:38
     :END:
-**** Shell
+**** Shell [1/2]
+     :PROPERTIES:
+     :COOKIE_DATA: todo recursive
+     :VISIBILITY: all
+     :END:
      :LOGBOOK:
+     CLOCK: [2026-09-09 Mi 09:54]--[2026-09-09 Mi 10:18] =>  0:24
      CLOCK: [2026-09-08 Di 23:35]--[2026-09-09 Mi 00:37] =>  1:02
      CLOCK: [2026-09-08 Di 11:35]--[2026-09-08 Di 15:13] =>  3:38
      CLOCK: [2026-09-08 Di 10:07]--[2026-09-08 Di 11:16] =>  1:09
      :END:
+***** TODO Intelligent Completion
+      :LOGBOOK:
+      CLOCK: [2026-09-11 Fr 10:20]--[2026-09-11 Fr 11:52] =>  1:32
+      :END:
+      This turns out out to be intricate than I had thought.
+***** DONE History
+      CLOSED: [2026-09-09 Mi 11:23]
+      :LOGBOOK:
+      CLOCK: [2026-09-09 Mi 10:18]--[2026-09-09 Mi 11:23] =>  1:05
+      :END:
 **** Lua FTW!
      :LOGBOOK:
      CLOCK: [2026-09-07 Mo 11:16]--[2026-09-07 Mo 11:18] =>  0:02
