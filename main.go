@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-08 15:13:21 krylon>
+// Time-stamp: <2026-09-11 14:52:45 krylon>
 
 package main
 
@@ -27,10 +27,10 @@ func main() {
 		common.BuildStamp.Format(common.TimestampFormat))
 
 	var (
-		err      error
-		doSubmit bool
-		baseDir  string
-		watcher  *jes.JES
+		err                  error
+		doSubmit, doComplete bool
+		baseDir              string
+		watcher              *jes.JES
 	)
 
 	flag.StringVar(
@@ -45,6 +45,13 @@ func main() {
 		"submit",
 		false,
 		"prompt for a new Job to submit",
+	)
+
+	flag.BoolVar(
+		&doComplete,
+		"complete",
+		true,
+		"enable auto-completion",
 	)
 
 	flag.Parse()
@@ -65,7 +72,7 @@ func main() {
 
 		common.Interactive.Store(true)
 
-		if s, err = shell.Create(); err != nil {
+		if s, err = shell.Create(doComplete); err != nil {
 			fmt.Fprintf(
 				os.Stderr,
 				"Failed to create Shell: %s\n",
