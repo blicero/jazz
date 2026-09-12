@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 07. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-11 14:55:00 krylon>
+// Time-stamp: <2026-09-12 11:44:17 krylon>
 
 package shell
 
@@ -29,8 +29,8 @@ const pprompt = "~> "
 
 var (
 	noise     = regexp.MustCompile("[~#]")
-	farPath   = regexp.MustCompile("^[.]{0,2}/")
 	letterPat = regexp.MustCompile("^[a-zA-Z]")
+	// farPath   = regexp.MustCompile("^[.]{0,2}/")
 )
 
 // Shell is a simple command line shell that prompts for commands to execute
@@ -166,11 +166,11 @@ func (s *Shell) executor(input string) {
 
 func (s *Shell) completer(d prompt.Document) []prompt.Suggest {
 	var (
-		err        error
-		line, word string
-		tokens     []string
-		sugg       = make([]prompt.Suggest, 0)
-		widx       int
+		err           error
+		line, word    string
+		tokens, files []string
+		sugg          []prompt.Suggest
+		widx          int
 	)
 
 	line = d.CurrentLine()
@@ -191,6 +191,16 @@ func (s *Shell) completer(d prompt.Document) []prompt.Suggest {
 
 	if widx == 0 {
 		return s.completerExecutables(d)
+	} else if files, err = s.readFolder(word); err != nil {
+		return nil
+	}
+
+	sugg = make([]prompt.Suggest, len(files))
+
+	for i, f := range files {
+		sugg[i] = prompt.Suggest{
+			Text: f,
+		}
 	}
 
 	return sugg
@@ -247,6 +257,9 @@ func (s *Shell) readFolder(path string) ([]string, error) {
 		files []string
 	)
 
+	s.log.Printf("[TRACE] Attempt to find completions for %q in current folder\n",
+		path)
+
 	if fh, err = os.Open(path); err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			return []string{}, nil
@@ -273,3 +286,41 @@ func (s *Shell) readFolder(path string) ([]string, error) {
 
 	return files, nil
 } // func (s *Shell) readFolder(path string) ([]string, error)
+
+// func (s *Shell) glob(word string) ([]string, error) {
+// 	var (
+// 		err   error
+// 		dh    *os.File
+// 		files []string
+// 		finfo []os.FileInfo
+// 	)
+
+// 	if dh, err = os.Open("."); err != nil {
+// 		s.log.Printf("[ERROR] Cannot open current directory: %s\n",
+// 			err.Error())
+// 		return nil, err
+// 	}
+
+// 	defer dh.Close() // nolint: errcheck
+
+// 	if finfo, err = dh.Readdir(-1); err != nil {
+// 		s.log.Printf("[ERROR] Cannot read current directory: %s\n",
+// 			err.Error())
+// 		return nil, err
+// 	}
+
+// 	files = make([]string, 0, len(finfo))
+
+// 	for _, info := range finfo {
+// 		var name = info.Name()
+// 		if !(info.Mode().IsRegular() || info.Mode().IsDir()) {
+// 			continue
+// 		} else if noise.MatchString(name) {
+// 			continue
+// 		} else if strings.HasPrefix(name, word) {
+// 			files = append(files, name)
+// 		}
+// 	}
+
+// 	return files, nil
+// } // func (s *Shell) glob(word string) ([]string, error)
