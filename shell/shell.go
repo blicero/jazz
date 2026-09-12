@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 07. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-12 11:44:17 krylon>
+// Time-stamp: <2026-09-12 12:32:54 krylon>
 
 package shell
 
@@ -28,8 +28,9 @@ import (
 const pprompt = "~> "
 
 var (
-	noise     = regexp.MustCompile("[~#]")
-	letterPat = regexp.MustCompile("^[a-zA-Z]")
+	noise        = regexp.MustCompile("[~#]")
+	letterPat    = regexp.MustCompile("^[a-zA-Z]")
+	pragmaPrefix = regexp.MustCompile("^%(.*)")
 	// farPath   = regexp.MustCompile("^[.]{0,2}/")
 )
 
@@ -146,12 +147,23 @@ func (s *Shell) executor(input string) {
 		input)
 
 	var (
-		err  error
-		step = model.Step{
+		err   error
+		match []string
+		step  = model.Step{
 			Command: input,
 		}
 	)
 
+	if match = pragmaPrefix.FindStringSubmatch(input); match == nil {
+		goto STEP
+	} else if err = s.processPragma(match[1]); err != nil {
+		s.log.Printf("[ERROR] Failed to process Pragma %q: %s\n",
+			match[1],
+			err.Error())
+		return
+	}
+
+STEP:
 	s.j.Steps = append(s.j.Steps, step)
 
 	if !strings.HasSuffix(input, "\n") {
