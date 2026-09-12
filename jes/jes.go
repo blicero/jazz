@@ -2,60 +2,60 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 04. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-12 11:56:30 krylon>
+// Time-stamp: <2026-09-12 16:06:46 krylon>
 
 // Package jes ("Job Entry System") accepts jobs feeds them into the queue.
 package jes
 
 import (
+	"bytes"
+	"encoding/gob"
 	"errors"
 	"log"
-	"os"
+	"net"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	"github.com/blicero/jazz/common"
 	"github.com/blicero/jazz/logdomain"
-	"github.com/fsnotify/fsnotify"
+	"github.com/blicero/jazz/model"
 )
 
 // const readJCLDelay = time.Millisecond * 500
+const maxErr = 10
 
 // JES accepts Job definitions, processes them, and hands them to the Job queue.
 type JES struct {
-	log     *log.Logger
-	workDir string
-	active  atomic.Bool
-	lock    sync.RWMutex
-	watch   *fsnotify.Watcher
-	flist   map[string]time.Time
+	log      *log.Logger
+	sockPath string
+	active   atomic.Bool
+	lock     sync.RWMutex
+	sock     *net.UnixConn
+	jobQ     chan *model.Job
 }
 
 // Create creates (well, duh) and returns a new JES that watches the
 // given directory.
 func Create(path string) (*JES, error) {
 	var (
-		err error
-		j   = &JES{
-			workDir: path,
-			flist:   make(map[string]time.Time),
+		err  error
+		addr net.UnixAddr
+		j    = &JES{
+			sockPath: path,
+			jobQ:     make(chan *model.Job),
 		}
 	)
 
+	addr = net.UnixAddr{
+		Name: path,
+		Net:  "unix",
+	}
+
 	if j.log, err = common.GetLogger(logdomain.JES); err != nil {
 		return nil, err
-	} else if j.watch, err = fsnotify.NewWatcher(); err != nil {
-		j.log.Printf("[CRITICAL] Cannot create FSNotify Watcher: %s\n",
-			err.Error())
-		return nil, err
-	} else if err = os.MkdirAll(path, 0755); err != nil {
-		j.log.Printf("[ERROR] Cannot create directory %s: %s\n",
-			path,
-			err.Error())
-		return nil, err
-	} else if err = j.watch.Add(path); err != nil {
-		j.log.Printf("[ERROR] Failed to watch for events on %s: %s\n",
+	} else if j.sock, err = net.ListenUnixgram("unixgram", &addr); err != nil {
+		j.log.Printf("[ERROR] Cannot listen at socket %s: %s\n",
 			path,
 			err.Error())
 		return nil, err
@@ -76,61 +76,84 @@ func (j *JES) Start() error {
 		return errors.New("jes appears to be running already")
 	}
 
+	go j.socketLoop()
 	go j.mainloop()
 	return nil
 } // func (j *JES) Start() error
 
 func (j *JES) mainloop() {
 	defer j.active.Store(false)
-	defer j.log.Printf("[INFO] JES watcher on %s is quitting.\n",
-		j.workDir)
+	defer j.log.Printf("[INFO] JES daemon @%s is quitting.\n",
+		j.sockPath)
 
 	var ticker = time.NewTicker(common.TickInterval)
 	defer ticker.Stop()
-
-	var ckTicker = time.NewTicker(time.Millisecond * 2500)
-	defer ckTicker.Stop()
 
 	for j.active.Load() {
 		select {
 		case <-ticker.C:
 			continue
-		case <-ckTicker.C:
-			continue
-		case ev := <-j.watch.Events:
-			// so, what are you going to do about it?
-			j.log.Printf("[TRACE] Received Event %s on %s\n",
-				ev.Op,
-				ev.Name)
-			j.handleEvent(ev)
+		case job := <-j.jobQ:
+			// Submit Job to Monitor!
 		}
 	}
+
 } // func (j *JES) mainloop()
 
-func (j *JES) handleEvent(ev fsnotify.Event) {
-	j.lock.Lock()
-	defer j.lock.Unlock()
-	switch ev.Op {
-	case fsnotify.Create:
-		j.log.Printf("[TRACE] New file %s\n",
-			ev.Name)
+func (j *JES) socketLoop() {
+	const bufSize = 1 << 16
+	var trouble bool
 
-		// if jclPat.MatchString(ev.Name) {
-		// 	j.flist[ev.Name] = time.Now()
-		// }
-	case fsnotify.Write:
-		j.log.Printf("[TRACE] File %s was written to\n",
-			ev.Name)
-		if _, ok := j.flist[ev.Name]; ok {
-			j.flist[ev.Name] = time.Now()
+	defer func() {
+		if x := recover(); x != nil {
+			j.log.Printf("[ERROR] Panic: %s (trouble=%t)\n",
+				x,
+				trouble)
 		}
-	case fsnotify.Remove:
-		j.log.Printf("[TRACE] %s was deleted.\n",
-			ev.Name)
-		delete(j.flist, ev.Name)
-	default:
-		j.log.Printf("[TRACE] Ignore %s being %s-ed\n",
-			ev.Name,
-			ev.Op)
+	}()
+
+	for j.active.Load() {
+		var (
+			err               error
+			bytesRcvd, errCnt int
+			decBuf            *bytes.Buffer
+			dec               *gob.Decoder
+			job               *model.Job
+			rbuf              = make([]byte, bufSize)
+		)
+		trouble = false
+
+		if bytesRcvd, err = j.sock.Read(rbuf); err != nil {
+			j.log.Printf("[ERROR] Failed to read from Unix socket %s: %s\n",
+				j.sockPath,
+				err.Error())
+			if errCnt >= maxErr {
+				j.log.Printf("[ERROR] Maximum number of errors (%d) has occured, bailing out\n",
+					errCnt)
+				j.active.Store(false)
+				return
+			}
+			errCnt++
+			continue
+		} else if bytesRcvd >= bufSize {
+			// Buffer overflow-ish?
+			j.log.Printf("[ERROR] Possible buffer overrun? Read %d bytes\n",
+				bytesRcvd)
+			errCnt++
+			trouble = true
+		}
+
+		decBuf = bytes.NewBuffer(rbuf)
+		dec = gob.NewDecoder(decBuf)
+		job = new(model.Job)
+
+		if err = dec.Decode(job); err != nil {
+			j.log.Printf("[ERROR] Cannot decode Job: %s\n",
+				err.Error())
+			errCnt++
+			continue
+		}
+
+		j.jobQ <- job
 	}
-} // func (j *JES) handleEvent(ev fsnotify.Event)
+} // func (j *JES) socketLoop()
