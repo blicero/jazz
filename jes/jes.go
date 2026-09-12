@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 04. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-08 11:10:39 krylon>
+// Time-stamp: <2026-09-12 11:56:30 krylon>
 
 // Package jes ("Job Entry System") accepts jobs feeds them into the queue.
 package jes
@@ -17,11 +17,10 @@ import (
 
 	"github.com/blicero/jazz/common"
 	"github.com/blicero/jazz/logdomain"
-	"github.com/blicero/krylib"
 	"github.com/fsnotify/fsnotify"
 )
 
-const readJCLDelay = time.Millisecond * 500
+// const readJCLDelay = time.Millisecond * 500
 
 // JES accepts Job definitions, processes them, and hands them to the Job queue.
 type JES struct {
@@ -97,7 +96,7 @@ func (j *JES) mainloop() {
 		case <-ticker.C:
 			continue
 		case <-ckTicker.C:
-			j.checkJCL()
+			continue
 		case ev := <-j.watch.Events:
 			// so, what are you going to do about it?
 			j.log.Printf("[TRACE] Received Event %s on %s\n",
@@ -135,25 +134,3 @@ func (j *JES) handleEvent(ev fsnotify.Event) {
 			ev.Op)
 	}
 } // func (j *JES) handleEvent(ev fsnotify.Event)
-
-func (j *JES) checkJCL() {
-	j.lock.Lock()
-	defer j.lock.Unlock()
-
-	if len(j.flist) == 0 {
-		return
-	}
-
-	for fname, timestamp := range j.flist {
-		if time.Since(timestamp) >= readJCLDelay {
-			go j.processJob(fname) // nolint: errcheck
-			delete(j.flist, fname)
-		}
-	}
-} // func (j *JES) checkJCL()
-
-func (j *JES) processJob(path string) error {
-	j.log.Printf("[TRACE] Process Job %s\n",
-		path)
-	return krylib.ErrNotImplemented
-} // func (j *JES) processJob(path string)
