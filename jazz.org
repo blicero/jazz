@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-09-12 11:51:52 krylon>
+# Time-stamp: <2026-09-12 11:53:34 krylon>
 #
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
@@ -8,24 +8,24 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Jazz [2/3]
+* Jazz [3/3]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-09-12 Sa 11:51]
+   #+CAPTION: Clock summary at [2026-09-12 Sa 11:53]
    | Headline                                    | Time      |           |       |       |      |      |
    |---------------------------------------------+-----------+-----------+-------+-------+------+------|
    | *Total time*                                | *1d 6:38* |           |       |       |      |      |
    |---------------------------------------------+-----------+-----------+-------+-------+------+------|
-   | *Jazz [2/3]*                                | *1d 6:38* |           |       |       |      |      |
-   | \_  /Components [2/3]/                      |           | /1d 6:38/ |       |       |      |      |
+   | *Jazz [3/3]*                                | *1d 6:38* |           |       |       |      |      |
+   | \_  /Components [3/3]/                      |           | /1d 6:38/ |       |       |      |      |
    | \_    Model [0/0]                           |           |           |  0:39 |       |      |      |
    | \_    Database [0/0]                        |           |           |  6:20 |       |      |      |
-   | \_    Job Entry [1/2]                       |           |           | 22:41 |       |      |      |
-   | \_      Shell [1/2]                         |           |           |       | 14:50 |      |      |
+   | \_    Job Entry [2/2]                       |           |           | 22:41 |       |      |      |
+   | \_      Shell [2/2]                         |           |           |       | 14:50 |      |      |
    | \_        Intelligent Completion            |           |           |       |       | 7:32 |      |
    | \_          Reboot                          |           |           |       |       |      | 6:00 |
    | \_        History                           |           |           |       |       | 1:05 |      |
@@ -34,7 +34,7 @@
    | \_    Main/Common [1/1]                     |           |           |  0:22 |       |      |      |
    | \_      Supress logging to terminal when... |           |           |       |  0:22 |      |      |
    #+END:
-** Components [2/3]
+** Components [3/3]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -59,7 +59,7 @@
     I think I might want to not use SQLite this time. Or do I?
     I definitely do need some kind of support for persistence. I /could/ use a
     kv-store, that should probably suffice for this project.
-*** Job Entry [1/2]
+*** Job Entry [2/2]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -70,7 +70,7 @@
     CLOCK: [2026-09-05 Sa 11:29]--[2026-09-05 Sa 13:01] =>  1:32
     CLOCK: [2026-09-04 Fr 10:23]--[2026-09-04 Fr 14:01] =>  3:38
     :END:
-**** Shell [1/2]
+**** Shell [2/2]
      :PROPERTIES:
      :COOKIE_DATA: todo recursive
      :VISIBILITY: all
@@ -81,7 +81,8 @@
      CLOCK: [2026-09-08 Di 11:35]--[2026-09-08 Di 15:13] =>  3:38
      CLOCK: [2026-09-08 Di 10:07]--[2026-09-08 Di 11:16] =>  1:09
      :END:
-***** TODO Intelligent Completion
+***** SUSPENDED Intelligent Completion
+      CLOSED: [2026-09-12 Sa 11:53]
       :LOGBOOK:
       CLOCK: [2026-09-11 Fr 10:20]--[2026-09-11 Fr 11:52] =>  1:32
       :END:
