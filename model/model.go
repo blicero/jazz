@@ -2,15 +2,19 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-06 16:44:53 krylon>
+// Time-stamp: <2026-09-12 14:00:54 krylon>
 
 // Package model defines data types used throughout the application
 package model
 
 import (
 	"fmt"
+	"math"
+	"slices"
+	"strings"
 	"time"
 
+	"github.com/blicero/jazz/common"
 	"github.com/blicero/jazz/model/predicate"
 )
 
@@ -160,3 +164,80 @@ func (j *Job) Equal(other any) bool {
 		return false
 	}
 } // func (j *Job) Equal(other any) bool
+
+// PrettyPrint returns a string represantion of the Job intended for a human reader.
+func (j *Job) PrettyPrint() string {
+	var (
+		sb strings.Builder
+	)
+
+	// ...
+	fmt.Fprintf(&sb,
+		`
+Job %d (%s)
+WorkDir:        %s
+Niceness:       %d
+IOPrio:         %d
+ScheduledStart: %s
+Deadline:       %s
+`,
+		j.ID,
+		j.Name,
+		j.WorkDir,
+		j.Niceness,
+		j.IOPrio,
+		j.ScheduledStart.Format(common.TimestampFormat),
+		j.Deadline.Format(common.TimestampFormat))
+
+	if len(j.Env) > 0 {
+		var (
+			keys        = make([]string, len(j.Env))
+			maxLen, idx int
+			fmtString   string
+		)
+
+		for key := range j.Env {
+			if len(key) > maxLen {
+				maxLen = len(key)
+			}
+			keys[idx] = key
+			idx++
+		}
+
+		sb.WriteString("Env:\n")
+		slices.Sort(keys)
+
+		fmtString = fmt.Sprintf("%%-%ds = %%s\n",
+			maxLen)
+
+		fmt.Printf("DBG Env fmt string = %s\n",
+			fmtString)
+
+		for _, key := range keys {
+			fmt.Fprintf(
+				&sb,
+				fmtString,
+				key,
+				j.Env[key])
+		}
+	}
+
+	sb.WriteString("Steps:\n")
+
+	var (
+		idxWidth  = int(math.Log10(float64(len(j.Steps)))) + 1
+		fmtString = fmt.Sprintf("%%%dd: %%s\n", idxWidth)
+	)
+
+	for idx, step := range j.Steps {
+		fmt.Fprintf(
+			&sb,
+			fmtString,
+			idx,
+			step)
+	}
+
+	sb.WriteString("\n")
+
+	return sb.String()
+} // func (j *Job) PrettyPrint() string
