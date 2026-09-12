@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 07. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-12 12:32:54 krylon>
+// Time-stamp: <2026-09-12 13:56:14 krylon>
 
 package shell
 
@@ -162,6 +162,8 @@ func (s *Shell) executor(input string) {
 			err.Error())
 		return
 	}
+
+	return
 
 STEP:
 	s.j.Steps = append(s.j.Steps, step)
