@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-11 14:52:45 krylon>
+// Time-stamp: <2026-09-12 13:40:25 krylon>
 
 package main
 
@@ -86,17 +86,8 @@ func main() {
 			os.Exit(1)
 		}
 
-		fmt.Println("Submit Job:")
-		for _, step := range j.Steps {
-			fmt.Printf(">> %s\n",
-				step.Command)
-		}
+		fmt.Printf("Submit Job:\n%s", j.PrettyPrint())
 
-		// do something!
-		// fmt.Println("Sleepy now")
-		// time.Sleep(time.Second * 10)
-
-		// later:
 		os.Exit(0)
 	}
 
