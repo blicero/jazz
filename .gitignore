@@ -1,5 +1,5 @@
 # Binaries for programs and plugins
-# Time-stamp: <2026-09-07 10:55:21 krylon>
+# Time-stamp: <2026-09-12 11:39:25 krylon>
 *.exe
 *.dll
 *.so
@@ -27,3 +27,6 @@ bak.*
 
 sternengeschichten
 jazz
+
+# Debug-Binaries
+__debug*
