@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-04 12:04:31 krylon>
+// Time-stamp: <2026-09-18 16:50:48 krylon>
 
 // Package monitor implements the heart of the application, so to speak.
 package monitor
@@ -29,7 +29,7 @@ type Monitor struct {
 	db     *database.Database
 	active atomic.Bool
 	jobs   map[int64]*model.Job
-	cmdQ   chan command.Command
+	CmdQ   chan command.Command
 }
 
 // Create creates and returns a new Monitor.
@@ -38,7 +38,7 @@ func Create() (*Monitor, error) {
 		err error
 		mon = &Monitor{
 			jobs: make(map[int64]*model.Job),
-			cmdQ: make(chan command.Command),
+			CmdQ: make(chan command.Command),
 		}
 		jobs []*model.Job
 	)
@@ -72,8 +72,13 @@ func (mon *Monitor) Stop() {
 	mon.active.Store(false)
 } // func (mon *Monitor) Stop()
 
-// Run executes the Monitor's main loop.
-func (mon *Monitor) Run() {
+// Start starts the Monitor's main loop in a separate goroutine.
+func (mon *Monitor) Start() {
+	go mon.mainLoop()
+}
+
+// mainLoop executes the Monitor's main loop.
+func (mon *Monitor) mainLoop() {
 	if swapped := mon.active.CompareAndSwap(false, true); !swapped {
 		mon.log.Println("[WARNING] Monitor appears to be running already.")
 		return
@@ -89,11 +94,11 @@ func (mon *Monitor) Run() {
 		select {
 		case <-ticker.C:
 			// bla
-		case cmd := <-mon.cmdQ:
-			mon.handleCommand(cmd)
+		case cmd := <-mon.CmdQ:
+			go mon.handleCommand(cmd)
 		}
 	}
-} // func (mon *Monitor) Run()
+} // func (mon *Monitor) mainLoop()
 
 func (mon *Monitor) handleCommand(cmd command.Command) {
 	var err error

@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-02 12:06:23 krylon>
+// Time-stamp: <2026-09-18 17:52:43 krylon>
 
 // Package database provides persistence for the Job Queue.
 package database
@@ -205,7 +205,12 @@ func (db *Database) JobGetAll() ([]*model.Job, error) {
 			cur    *bolt.Cursor
 		)
 
-		bucket = tx.Bucket([]byte(bucketName))
+		if bucket = tx.Bucket([]byte(bucketName)); bucket == nil {
+			db.log.Printf("[INFO] Bucket %s does not exist\n",
+				bucketName)
+			return nil
+		}
+
 		cur = bucket.Cursor()
 
 		for k, v := cur.First(); k != nil; k, v = cur.Next() {
