@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-09-12 16:18:51 krylon>
+# Time-stamp: <2026-09-18 19:16:11 krylon>
 #
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
@@ -8,24 +8,24 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Jazz [4/6]
+* Jazz [4/7]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-09-12 Sa 16:18]
+   #+CAPTION: Clock summary at [2026-09-18 Fr 19:16]
    | Headline                                       | Time       |            |         |       |      |      |
    |------------------------------------------------+------------+------------+---------+-------+------+------|
-   | *Total time*                                   | *1d 10:20* |            |         |       |      |      |
+   | *Total time*                                   | *1d 13:09* |            |         |       |      |      |
    |------------------------------------------------+------------+------------+---------+-------+------+------|
-   | *Jazz [4/6]*                                   | *1d 10:20* |            |         |       |      |      |
-   | \_  /Components [4/6]/                         |            | /1d 10:20/ |         |       |      |      |
+   | *Jazz [4/7]*                                   | *1d 13:09* |            |         |       |      |      |
+   | \_  /Components [4/7]/                         |            | /1d 13:09/ |         |       |      |      |
    | \_    Model [0/0]                              |            |            |    0:39 |       |      |      |
    | \_    Database [0/0]                           |            |            |    6:20 |       |      |      |
-   | \_    Job Entry [3/5]                          |            |            | 1d 2:23 |       |      |      |
-   | \_      Switch from reverse-spool-directory... |            |            |         |  1:19 |      |      |
+   | \_    Job Entry [3/6]                          |            |            | 1d 5:12 |       |      |      |
+   | \_      Switch from reverse-spool-directory... |            |            |         |  4:08 |      |      |
    | \_      Stringify Jobs                         |            |            |         |  0:56 |      |      |
    | \_      Shell [2/3]                            |            |            |         | 15:58 |      |      |
    | \_        Pragmas                              |            |            |         |       | 0:57 |      |
@@ -37,7 +37,7 @@
    | \_    Main/Common [1/1]                        |            |            |    0:22 |       |      |      |
    | \_      Supress logging to terminal when...    |            |            |         |  0:22 |      |      |
    #+END:
-** Components [4/6]
+** Components [4/7]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -62,7 +62,7 @@
     I think I might want to not use SQLite this time. Or do I?
     I definitely do need some kind of support for persistence. I /could/ use a
     kv-store, that should probably suffice for this project.
-*** Job Entry [3/5]
+*** Job Entry [3/6]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -75,10 +75,18 @@
     CLOCK: [2026-09-05 Sa 11:29]--[2026-09-05 Sa 13:01] =>  1:32
     CLOCK: [2026-09-04 Fr 10:23]--[2026-09-04 Fr 14:01] =>  3:38
     :END:
+**** MEDITATE Integrate with Monitor?
+     Maybe keeping the receiving end of job entry separate from the Monitor is
+     a bad idea. As of now ([2026-09-18 Fr 17:35]), I cannot, for example
+     respond to a Job being submitted with a Job ID. The JES subsystem cannot
+     even tell if the Monitor has successfully accepted and saved the Job to
+     the database.
 **** TODO Switch from reverse-spool-directory to Unix socket
      :LOGBOOK:
+     CLOCK: [2026-09-18 Fr 16:26]--[2026-09-18 Fr 19:15] =>  2:49
      CLOCK: [2026-09-12 Sa 14:59]--[2026-09-12 Sa 16:18] =>  1:19
      :END:
+     I'm beginning to think I should just go with TCP.
 **** DONE Stringify Jobs
      CLOSED: [2026-09-12 Sa 14:03]
      :LOGBOOK:
