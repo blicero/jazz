@@ -2,9 +2,9 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 07. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-07 11:23:20 krylon>
+// Time-stamp: <2026-09-19 12:12:07 krylon>
 
-package jes
+package web
 
 import (
 	"testing"

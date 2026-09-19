@@ -2,10 +2,11 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 04. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-18 22:08:18 krylon>
+// Time-stamp: <2026-09-19 12:11:48 krylon>
 
-// Package jes ("Job Entry System") accepts jobs feeds them into the queue.
-package jes
+// Package web handles job submissions and provides a web interface to the
+// Monitor.
+package web
 
 import (
 	"context"
