@@ -2,23 +2,19 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-19 12:18:10 krylon>
+// Time-stamp: <2026-09-19 12:32:14 krylon>
 
 package main
 
 import (
-	"bytes"
-	"encoding/gob"
 	"flag"
 	"fmt"
-	"net"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
 	"github.com/blicero/jazz/common"
-	"github.com/blicero/jazz/jes"
 	"github.com/blicero/jazz/model"
 	"github.com/blicero/jazz/monitor"
 	"github.com/blicero/jazz/monitor/command"
@@ -155,59 +151,3 @@ func main() {
 		}
 	}
 } // func main()
-
-// TODO switch to HTTP interface, and maybe roll that back into the Shell?
-func submitJob(path string, j *model.Job) error {
-	var (
-		err     error
-		sock    *net.UnixConn
-		enc     *gob.Encoder
-		buf     bytes.Buffer
-		n, oobn int
-		addr    = net.UnixAddr{
-			Name: path,
-			Net:  "unixgram",
-		}
-	)
-
-	if sock, err = net.DialUnix("unixgram", nil, &addr); err != nil {
-		fmt.Fprintf(
-			os.Stderr,
-			"Failed to connect to socket %s: %s\n",
-			path,
-			err.Error())
-		return err
-	}
-
-	enc = gob.NewEncoder(&buf)
-
-	if err = enc.Encode(j); err != nil {
-		fmt.Fprintf(
-			os.Stderr,
-			"Failed to serialize Job: %s\n",
-			err.Error(),
-		)
-		return err
-	} else if n, oobn, err = sock.WriteMsgUnix(buf.Bytes(), nil, &addr); err != nil {
-		fmt.Fprintf(
-			os.Stderr,
-			"Failed to submit Job: %s\n",
-			err.Error())
-		return err
-	} else if n != len(buf.Bytes()) { // CANTHAPPEN
-		fmt.Fprintf(
-			os.Stderr,
-			"Error: We only sent %d of %d bytes\n",
-			n,
-			len(buf.Bytes()))
-	} else if oobn != 0 { // CANTHAPPEN
-		fmt.Fprintf(
-			os.Stderr,
-			"We didn't send any oob data, but %d bytes were sent anyway?!\n",
-			oobn,
-		)
-
-	}
-
-	return nil
-} // func submitJob(j *model.Job) error
