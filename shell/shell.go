@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 07. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-12 13:56:14 krylon>
+// Time-stamp: <2026-09-19 12:17:14 krylon>
 
 package shell
 
@@ -160,7 +160,6 @@ func (s *Shell) executor(input string) {
 		s.log.Printf("[ERROR] Failed to process Pragma %q: %s\n",
 			match[1],
 			err.Error())
-		return
 	}
 
 	return

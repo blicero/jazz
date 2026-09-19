@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 04. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-19 12:11:48 krylon>
+// Time-stamp: <2026-09-19 12:15:45 krylon>
 
 // Package web handles job submissions and provides a web interface to the
 // Monitor.
@@ -21,8 +21,9 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// JES - the Job Entry Subsystem - accepts Jobs and submits them to the Monitor.
-type JES struct {
+// Web provides a web interface for the Monitor and a web service for the CLI
+// client to submit and manage Jobs.
+type Web struct {
 	mon       *monitor.Monitor
 	addr      string
 	active    atomic.Bool
@@ -33,10 +34,10 @@ type JES struct {
 }
 
 // Create creates and returns a new JES instance.
-func Create(addr string, mon *monitor.Monitor) (*JES, error) {
+func Create(addr string, mon *monitor.Monitor) (*Web, error) {
 	var (
 		err error
-		j   = &JES{
+		j   = &Web{
 			mon:  mon,
 			addr: addr,
 			mimeTypes: map[string]string{
@@ -69,18 +70,18 @@ func Create(addr string, mon *monitor.Monitor) (*JES, error) {
 } // func Create(addr string, mon *monitor.Monitor) (*JES, error)
 
 // IsActive returns the value of the JES' active flag.
-func (j *JES) IsActive() bool {
+func (j *Web) IsActive() bool {
 	return j.active.Load()
 } // func (j *JES) IsActive() bool
 
 // Stop tells the JES to stop.
-func (j *JES) Stop() {
+func (j *Web) Stop() {
 	j.active.Store(false)
 	j.srv.Shutdown(context.Background())
 } // func (j *JES) Stop()
 
 // Run executes the JES server's main loop.
-func (j *JES) Run() {
+func (j *Web) Run() {
 	var (
 		err     error
 		swapped bool
@@ -112,7 +113,7 @@ func (j *JES) Run() {
 /// Web service //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-func (j *JES) handleSubmit(w http.ResponseWriter, r *http.Request) {
+func (j *Web) handleSubmit(w http.ResponseWriter, r *http.Request) {
 	j.log.Printf("[TRACE] Handle %s from %s\n",
 		r.URL,
 		r.RemoteAddr)

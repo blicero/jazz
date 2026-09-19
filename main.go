@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-18 18:49:37 krylon>
+// Time-stamp: <2026-09-19 12:18:10 krylon>
 
 package main
 
@@ -156,6 +156,7 @@ func main() {
 	}
 } // func main()
 
+// TODO switch to HTTP interface, and maybe roll that back into the Shell?
 func submitJob(path string, j *model.Job) error {
 	var (
 		err     error

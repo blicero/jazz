@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 07. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-19 12:12:00 krylon>
+// Time-stamp: <2026-09-19 12:13:38 krylon>
 
 package web
 
@@ -21,7 +21,7 @@ func TestMain(m *testing.M) {
 	var (
 		err     error
 		result  int
-		baseDir = time.Now().Format("/tmp/jazz_jes_test_20060102_150405")
+		baseDir = time.Now().Format("/tmp/jazz_web_test_20060102_150405")
 	)
 
 	if err = common.SetBaseDir(baseDir); err != nil {
