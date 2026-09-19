@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-09-19 12:30:37 krylon>
+# Time-stamp: <2026-09-19 14:03:33 krylon>
 #
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
@@ -8,20 +8,20 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Jazz [7/8]
+* Jazz [7/9]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-09-19 Sa 12:30]
+   #+CAPTION: Clock summary at [2026-09-19 Sa 14:03]
    | Headline                                       | Time       |            |       |      |
    |------------------------------------------------+------------+------------+-------+------|
-   | *Total time*                                   | *1d 15:39* |            |       |      |
+   | *Total time*                                   | *1d 17:09* |            |       |      |
    |------------------------------------------------+------------+------------+-------+------|
-   | *Jazz [7/8]*                                   | *1d 15:39* |            |       |      |
-   | \_  /Components [7/8]/                         |            | /1d 15:39/ |       |      |
+   | *Jazz [7/9]*                                   | *1d 17:09* |            |       |      |
+   | \_  /Components [7/9]/                         |            | /1d 17:09/ |       |      |
    | \_    Model [0/0]                              |            |            |  0:39 |      |
    | \_    Database [0/0]                           |            |            |  6:20 |      |
    | \_    Job Entry [3/3]                          |            |            | 15:36 |      |
@@ -33,13 +33,13 @@
    | \_      Intelligent Completion                 |            |            |       | 1:32 |
    | \_      Reboot                                 |            |            |       | 6:00 |
    | \_      History                                |            |            |       | 1:05 |
-   | \_    Monitor [0/0]                            |            |            |  0:36 |      |
-   | \_    Web [0/0]                                |            |            |  0:08 |      |
+   | \_    Monitor [0/1]                            |            |            |  0:36 |      |
+   | \_    Web [0/0]                                |            |            |  1:38 |      |
    | \_      Web Service [0/0]                      |            |            |       | 0:06 |
    | \_    Main/Common [1/1]                        |            |            |  0:22 |      |
    | \_      Supress logging to terminal when...    |            |            |       | 0:22 |
    #+END:
-** Components [7/8]
+** Components [7/9]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -128,7 +128,7 @@
      CLOCK: [2026-09-08 Di 11:35]--[2026-09-08 Di 15:13] =>  3:38
      CLOCK: [2026-09-08 Di 10:07]--[2026-09-08 Di 11:16] =>  1:09
      :END:
-**** TODO Sub Jobs via web service
+**** TODO Submit Jobs via web service
      In its current state, jobs are submitted by a function in the main
      package, that should be moved into the Shell.
 **** DONE Pragmas
@@ -154,7 +154,7 @@
      :LOGBOOK:
      CLOCK: [2026-09-09 Mi 10:18]--[2026-09-09 Mi 11:23] =>  1:05
      :END:
-*** Monitor [0/0]
+*** Monitor [0/1]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -163,14 +163,21 @@
     CLOCK: [2026-09-04 Fr 10:23]--[2026-09-04 Fr 10:23] =>  0:00
     CLOCK: [2026-09-03 Do 12:54]--[2026-09-03 Do 13:30] =>  0:36
     :END:
+**** TODO Submitting/Accepting Jobs
+     Currently, the interface to submit Jobs to the Monitor is to send them
+     through a channel.
+     Which is very bad, because from the sending end, I have no
+     feedback/response if the job was accepted nor any handle to refer to it
+     in queries.
 *** Web [0/0]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
     :END:
     :LOGBOOK:
-CLOCK: [2026-09-19 Sa 12:22]--[2026-09-19 Sa 12:24] =>  0:02
-:END:
+    CLOCK: [2026-09-19 Sa 12:33]--[2026-09-19 Sa 14:03] =>  1:30
+    CLOCK: [2026-09-19 Sa 12:22]--[2026-09-19 Sa 12:24] =>  0:02
+    :END:
     Okay, the command client client and the Monitor are going to be
     communicating via HTTP, because that is the easiest to implement, and I
     want a web interface to watch the queue, job output, etc. anyway.
