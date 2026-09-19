@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-09-19 12:09:16 krylon>
+# Time-stamp: <2026-09-19 12:30:37 krylon>
 #
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
@@ -8,36 +8,38 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Jazz [7/7]
+* Jazz [7/8]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-09-19 Sa 12:09]
+   #+CAPTION: Clock summary at [2026-09-19 Sa 12:30]
    | Headline                                       | Time       |            |       |      |
    |------------------------------------------------+------------+------------+-------+------|
-   | *Total time*                                   | *1d 15:31* |            |       |      |
+   | *Total time*                                   | *1d 15:39* |            |       |      |
    |------------------------------------------------+------------+------------+-------+------|
-   | *Jazz [7/7]*                                   | *1d 15:31* |            |       |      |
-   | \_  /Components [7/7]/                         |            | /1d 15:31/ |       |      |
+   | *Jazz [7/8]*                                   | *1d 15:39* |            |       |      |
+   | \_  /Components [7/8]/                         |            | /1d 15:39/ |       |      |
    | \_    Model [0/0]                              |            |            |  0:39 |      |
    | \_    Database [0/0]                           |            |            |  6:20 |      |
    | \_    Job Entry [3/3]                          |            |            | 15:36 |      |
    | \_      Switch from reverse-spool-directory... |            |            |       | 4:08 |
    | \_      Stringify Jobs                         |            |            |       | 0:56 |
    | \_      Lua FTW!                               |            |            |       | 1:42 |
-   | \_    Shell [3/3]                              |            |            | 15:58 |      |
+   | \_    Shell [3/4]                              |            |            | 15:58 |      |
    | \_      Pragmas                                |            |            |       | 0:57 |
    | \_      Intelligent Completion                 |            |            |       | 1:32 |
    | \_      Reboot                                 |            |            |       | 6:00 |
    | \_      History                                |            |            |       | 1:05 |
    | \_    Monitor [0/0]                            |            |            |  0:36 |      |
+   | \_    Web [0/0]                                |            |            |  0:08 |      |
+   | \_      Web Service [0/0]                      |            |            |       | 0:06 |
    | \_    Main/Common [1/1]                        |            |            |  0:22 |      |
    | \_      Supress logging to terminal when...    |            |            |       | 0:22 |
    #+END:
-** Components [7/7]
+** Components [7/8]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -114,7 +116,7 @@
      each time I want to run a Job.
      The interface should probably be more like at of at(1) where I just enter
      a sequence of commands.
-*** Shell [3/3]
+*** Shell [3/4]
      :PROPERTIES:
      :COOKIE_DATA: todo recursive
      :VISIBILITY: all
@@ -126,6 +128,9 @@
      CLOCK: [2026-09-08 Di 11:35]--[2026-09-08 Di 15:13] =>  3:38
      CLOCK: [2026-09-08 Di 10:07]--[2026-09-08 Di 11:16] =>  1:09
      :END:
+**** TODO Sub Jobs via web service
+     In its current state, jobs are submitted by a function in the main
+     package, that should be moved into the Shell.
 **** DONE Pragmas
      CLOSED: [2026-09-19 Sa 12:08]
      :LOGBOOK:
@@ -158,6 +163,32 @@
     CLOCK: [2026-09-04 Fr 10:23]--[2026-09-04 Fr 10:23] =>  0:00
     CLOCK: [2026-09-03 Do 12:54]--[2026-09-03 Do 13:30] =>  0:36
     :END:
+*** Web [0/0]
+    :PROPERTIES:
+    :COOKIE_DATA: todo recursive
+    :VISIBILITY: all
+    :END:
+    :LOGBOOK:
+CLOCK: [2026-09-19 Sa 12:22]--[2026-09-19 Sa 12:24] =>  0:02
+:END:
+    Okay, the command client client and the Monitor are going to be
+    communicating via HTTP, because that is the easiest to implement, and I
+    want a web interface to watch the queue, job output, etc. anyway.
+**** Web Service [0/0]
+     :PROPERTIES:
+     :COOKIE_DATA: todo recursive
+     :VISIBILITY: all
+     :END:
+     :LOGBOOK:
+     CLOCK: [2026-09-19 Sa 12:24]--[2026-09-19 Sa 12:30] =>  0:06
+     :END:
+     The web server offers a web service to the CLI client for submitting and
+     managing jobs.
+**** Web UI [0/0]
+     :PROPERTIES:
+     :COOKIE_DATA: todo recursive
+     :VISIBILITY: all
+     :END:
 *** Main/Common [1/1]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
