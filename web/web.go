@@ -2,24 +2,45 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 04. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-19 12:15:45 krylon>
+// Time-stamp: <2026-09-19 13:07:58 krylon>
 
 // Package web handles job submissions and provides a web interface to the
 // Monitor.
 package web
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"sync/atomic"
+	"time"
 
 	"github.com/blicero/jazz/common"
 	"github.com/blicero/jazz/logdomain"
 	"github.com/blicero/jazz/model"
 	"github.com/blicero/jazz/monitor"
+	"github.com/blicero/jazz/monitor/command"
 	"github.com/gorilla/mux"
 )
+
+const (
+	cacheControl = "max-age=120, public"
+	noCache      = "no-store, max-age=0"
+	tmplFolder   = "assets/templates"
+)
+
+func cacheSeconds(seconds int) string {
+	if seconds == 0 {
+		return noCache
+	}
+
+	return fmt.Sprintf("max-age=%d, public",
+		seconds)
+} // func cacheSeconds(second int) string
 
 // Web provides a web interface for the Monitor and a web service for the CLI
 // client to submit and manage Jobs.
@@ -37,7 +58,7 @@ type Web struct {
 func Create(addr string, mon *monitor.Monitor) (*Web, error) {
 	var (
 		err error
-		j   = &Web{
+		srv = &Web{
 			mon:  mon,
 			addr: addr,
 			mimeTypes: map[string]string{
@@ -56,51 +77,51 @@ func Create(addr string, mon *monitor.Monitor) (*Web, error) {
 		}
 	)
 
-	if j.log, err = common.GetLogger(logdomain.JES); err != nil {
+	if srv.log, err = common.GetLogger(logdomain.JES); err != nil {
 		return nil, err
 	}
 
-	j.srv.Addr = addr
-	j.srv.ErrorLog = j.log
-	j.srv.Handler = j.router
+	srv.srv.Addr = addr
+	srv.srv.ErrorLog = srv.log
+	srv.srv.Handler = srv.router
 
 	// ...
 
-	return j, nil
-} // func Create(addr string, mon *monitor.Monitor) (*JES, error)
+	return srv, nil
+} // func Create(addr string, mon *monitor.Monitor) (*Web, error)
 
 // IsActive returns the value of the JES' active flag.
-func (j *Web) IsActive() bool {
-	return j.active.Load()
+func (srv *Web) IsActive() bool {
+	return srv.active.Load()
 } // func (j *JES) IsActive() bool
 
 // Stop tells the JES to stop.
-func (j *Web) Stop() {
-	j.active.Store(false)
-	j.srv.Shutdown(context.Background())
+func (srv *Web) Stop() {
+	srv.active.Store(false)
+	srv.srv.Shutdown(context.Background())
 } // func (j *JES) Stop()
 
 // Run executes the JES server's main loop.
-func (j *Web) Run() {
+func (srv *Web) Run() {
 	var (
 		err     error
 		swapped bool
 	)
 
-	if swapped = j.active.CompareAndSwap(false, true); !swapped {
-		j.log.Printf("[INFO] JES appears to be running already. Toodles!\n")
+	if swapped = srv.active.CompareAndSwap(false, true); !swapped {
+		srv.log.Printf("[INFO] JES appears to be running already. Toodles!\n")
 		return
 	}
 
-	defer j.log.Printf("[INFO] JES is shutting down.\n")
+	defer srv.log.Printf("[INFO] JES is shutting down.\n")
 
 	// I have initially copied this from some tutorial or documentation, but
 	// I am not sure if it is really necessary. OTOH, it does not appear to
 	// do any harm.
-	http.Handle("/", j.router)
+	http.Handle("/", srv.router)
 
-	if err = j.srv.ListenAndServe(); err != nil {
-		j.log.Printf("[ERROR] The web server ran into an error: %s\n",
+	if err = srv.srv.ListenAndServe(); err != nil {
+		srv.log.Printf("[ERROR] The web server ran into an error: %s\n",
 			err.Error())
 	}
 } // func (j *JES) Run()
@@ -113,12 +134,61 @@ func (j *Web) Run() {
 /// Web service //////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
-func (j *Web) handleSubmit(w http.ResponseWriter, r *http.Request) {
-	j.log.Printf("[TRACE] Handle %s from %s\n",
+func (srv *Web) handleSubmit(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handle %s from %s\n",
 		r.URL,
 		r.RemoteAddr)
 	var (
-		err error
-		job *model.Job
+		err   error
+		msg   string
+		buf   []byte
+		rbuf  bytes.Buffer
+		cmd   command.Command
+		job   = new(model.Job)
+		reply = ajaxResponse{
+			Timestamp: time.Now(),
+		}
 	)
-}
+
+	if err = r.ParseForm(); err != nil {
+		msg = fmt.Sprintf("Cannot parse request form: %s", err.Error())
+		srv.log.Printf("[CRITICAL] %s\n",
+			msg)
+		buf = errJSON(msg)
+		goto SEND
+	} else if _, err = io.Copy(&rbuf, r.Body); err != nil {
+		msg = fmt.Sprintf("Failed to read request body: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	} else if err = json.Unmarshal(rbuf.Bytes(), job); err != nil {
+		msg = fmt.Sprintf("Cannot parse request body: %s\n\n%s\n",
+			err.Error(),
+			rbuf.String())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+	cmd.Verb = command.Submit
+	cmd.Object = job
+	srv.mon.CmdQ <- cmd
+
+	reply.Status = true
+	reply.Message = "Success"
+
+	if buf, err = json.Marshal(&reply); err != nil {
+		msg = fmt.Sprintf("Failed to serialize response: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+SEND:
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", noCache)
+	w.WriteHeader(200)
+	w.Write(buf) // nolint: errcheck,gosec
+} // func (srv *Web) handleSubmit(w http.ResponseWriter, r *http.Request)
