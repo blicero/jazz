@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-19 12:32:14 krylon>
+// Time-stamp: <2026-09-21 21:15:58 krylon>
 
 package main
 
@@ -17,8 +17,8 @@ import (
 	"github.com/blicero/jazz/common"
 	"github.com/blicero/jazz/model"
 	"github.com/blicero/jazz/monitor"
-	"github.com/blicero/jazz/monitor/command"
 	"github.com/blicero/jazz/shell"
+	"github.com/blicero/jazz/web"
 )
 
 func main() {
@@ -30,8 +30,8 @@ func main() {
 	var (
 		err                  error
 		doSubmit, doComplete bool
-		baseDir, sockPath    string
-		watcher              *jes.JES
+		baseDir, webAddr     string
+		srv                  *web.Web
 		mon                  *monitor.Monitor
 	)
 
@@ -43,7 +43,7 @@ func main() {
 	)
 
 	flag.StringVar(
-		&sockPath,
+		&webAddr,
 		"socket",
 		common.SockPath,
 		"path for the socket for submitting Jobs",
@@ -93,11 +93,11 @@ func main() {
 				"Error prompting for Job: %s\n",
 				err.Error())
 			os.Exit(1)
-		} else if err = submitJob(sockPath, j); err != nil {
+		} else if err = submitJob(webAddr, j); err != nil {
 			fmt.Fprintf(
 				os.Stderr,
 				"Failed to submit Job to Job queue %s: %s\n",
-				sockPath,
+				webAddr,
 				err.Error())
 			os.Exit(1)
 		}
@@ -105,17 +105,17 @@ func main() {
 		fmt.Printf("Submit Job:\n%s", j.PrettyPrint())
 
 		os.Exit(0)
-	} else if watcher, err = jes.Create(sockPath); err != nil {
-		fmt.Fprintf(
-			os.Stderr,
-			"Error creating JES: %s\n",
-			err.Error(),
-		)
-		os.Exit(1)
 	} else if mon, err = monitor.Create(); err != nil {
 		fmt.Fprintf(
 			os.Stderr,
 			"Error creating Monitor: %s\n",
+			err.Error(),
+		)
+		os.Exit(1)
+	} else if srv, err = web.Create(webAddr, mon); err != nil {
+		fmt.Fprintf(
+			os.Stderr,
+			"Error creating JES: %s\n",
 			err.Error(),
 		)
 		os.Exit(1)
@@ -128,7 +128,7 @@ func main() {
 	defer ticker.Stop()
 
 	mon.Start()
-	_ = watcher.Start()
+	go srv.Run()
 
 	for {
 		select {
@@ -140,14 +140,6 @@ func main() {
 				"Okay, okay, I'm quitting: %s\n",
 				s)
 			os.Exit(0)
-		case job := <-watcher.JobQ:
-			cmd := command.Command{
-				Verb:   command.Submit,
-				Object: job,
-			}
-			go func() {
-				mon.CmdQ <- cmd
-			}()
 		}
 	}
 } // func main()
