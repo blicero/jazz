@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-09-19 14:03:33 krylon>
+# Time-stamp: <2026-09-22 11:03:19 krylon>
 #
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
@@ -15,28 +15,30 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-09-19 Sa 14:03]
+   #+CAPTION: Clock summary at [2026-09-22 Di 03:02]
    | Headline                                       | Time       |            |       |      |
    |------------------------------------------------+------------+------------+-------+------|
-   | *Total time*                                   | *1d 17:09* |            |       |      |
+   | *Total time*                                   | *1d 19:46* |            |       |      |
    |------------------------------------------------+------------+------------+-------+------|
-   | *Jazz [7/9]*                                   | *1d 17:09* |            |       |      |
-   | \_  /Components [7/9]/                         |            | /1d 17:09/ |       |      |
+   | *Jazz [7/9]*                                   | *1d 19:46* |            |       |      |
+   | \_  /Components [7/9]/                         |            | /1d 19:46/ |       |      |
    | \_    Model [0/0]                              |            |            |  0:39 |      |
    | \_    Database [0/0]                           |            |            |  6:20 |      |
    | \_    Job Entry [3/3]                          |            |            | 15:36 |      |
    | \_      Switch from reverse-spool-directory... |            |            |       | 4:08 |
    | \_      Stringify Jobs                         |            |            |       | 0:56 |
    | \_      Lua FTW!                               |            |            |       | 1:42 |
-   | \_    Shell [3/4]                              |            |            | 15:58 |      |
+   | \_    Shell [3/4]                              |            |            | 17:49 |      |
+   | \_      Submit Jobs to the web service         |            |            |       | 1:51 |
    | \_      Pragmas                                |            |            |       | 0:57 |
    | \_      Intelligent Completion                 |            |            |       | 1:32 |
    | \_      Reboot                                 |            |            |       | 6:00 |
    | \_      History                                |            |            |       | 1:05 |
-   | \_    Monitor [0/1]                            |            |            |  0:36 |      |
-   | \_    Web [0/0]                                |            |            |  1:38 |      |
+   | \_    Monitor [0/1]                            |            |            |  0:59 |      |
+   | \_      Submitting/Accepting Jobs              |            |            |       | 0:23 |
+   | \_    Web [0/0]                                |            |            |  1:41 |      |
    | \_      Web Service [0/0]                      |            |            |       | 0:06 |
-   | \_    Main/Common [1/1]                        |            |            |  0:22 |      |
+   | \_    Main/Common [1/1]                        |            |            |  0:42 |      |
    | \_      Supress logging to terminal when...    |            |            |       | 0:22 |
    #+END:
 ** Components [7/9]
@@ -128,9 +130,11 @@
      CLOCK: [2026-09-08 Di 11:35]--[2026-09-08 Di 15:13] =>  3:38
      CLOCK: [2026-09-08 Di 10:07]--[2026-09-08 Di 11:16] =>  1:09
      :END:
-**** TODO Submit Jobs via web service
-     In its current state, jobs are submitted by a function in the main
-     package, that should be moved into the Shell.
+**** TODO Submit Jobs to the web service
+     :LOGBOOK:
+     CLOCK: [2026-09-22 Di 11:03]
+     CLOCK: [2026-09-21 Mo 20:02]--[2026-09-21 Mo 21:53] =>  1:51
+     :END:
 **** DONE Pragmas
      CLOSED: [2026-09-19 Sa 12:08]
      :LOGBOOK:
@@ -164,6 +168,9 @@
     CLOCK: [2026-09-03 Do 12:54]--[2026-09-03 Do 13:30] =>  0:36
     :END:
 **** TODO Submitting/Accepting Jobs
+     :LOGBOOK:
+     CLOCK: [2026-09-21 Mo 08:05]--[2026-09-21 Mo 08:28] =>  0:23
+     :END:
      Currently, the interface to submit Jobs to the Monitor is to send them
      through a channel.
      Which is very bad, because from the sending end, I have no
@@ -175,6 +182,7 @@
     :VISIBILITY: all
     :END:
     :LOGBOOK:
+    CLOCK: [2026-09-21 Mo 08:02]--[2026-09-21 Mo 08:05] =>  0:03
     CLOCK: [2026-09-19 Sa 12:33]--[2026-09-19 Sa 14:03] =>  1:30
     CLOCK: [2026-09-19 Sa 12:22]--[2026-09-19 Sa 12:24] =>  0:02
     :END:
@@ -200,6 +208,9 @@
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
+    :END:
+    :LOGBOOK:
+    CLOCK: [2026-09-21 Mo 08:30]--[2026-09-21 Mo 08:50] =>  0:20
     :END:
 **** DONE Supress logging to terminal when Shell is running
      CLOSED: [2026-09-09 Mi 00:45]
