@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-18 16:50:48 krylon>
+// Time-stamp: <2026-09-21 08:21:30 krylon>
 
 // Package monitor implements the heart of the application, so to speak.
 package monitor
@@ -122,21 +122,33 @@ func (mon *Monitor) handleCommand(cmd command.Command) {
 				cmd.Verb,
 				cmd.Object,
 				cmd.Object)
-			return
-		} else if err = mon.db.JobAdd(job); err != nil {
-			mon.log.Printf("[ERROR] Cannot add Job %s to database: %s\n",
-				job.Name,
+		} else if err = mon.SubmitJob(job); err != nil {
+			mon.log.Printf("[ERROR] Failed to submit Job: %s\n",
 				err.Error())
 		}
-
-		mon.lock.Lock()
-		mon.jobs[job.ID] = job
-		mon.lock.Unlock()
 	default:
 		mon.log.Printf("[ERROR] Don't know how to handle command %s\n",
 			cmd.Verb)
 	}
 } // func (mon *Monitor) handleCommand(cmd command.Command)
+
+// SubmitJob places a new Job in the Job queue and saves it to the Database.
+func (mon *Monitor) SubmitJob(job *model.Job) error {
+	var err error
+
+	if err = mon.db.JobAdd(job); err != nil {
+		mon.log.Printf("[ERROR] Cannot add Job %s to database: %s\n",
+			job.Name,
+			err.Error())
+		return err
+	}
+
+	mon.lock.Lock()
+	mon.jobs[job.ID] = job
+	mon.lock.Unlock()
+
+	return nil
+} // func (mon *Monitor) SubmitJob(job *model.Job) error
 
 // nolint: unused
 func (mon *Monitor) execute(job *model.Job) error {
