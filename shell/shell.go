@@ -2,15 +2,18 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 07. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-19 12:17:14 krylon>
+// Time-stamp: <2026-09-24 16:04:21 krylon>
 
 package shell
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -25,7 +28,10 @@ import (
 	"github.com/google/shlex"
 )
 
-const pprompt = "~> "
+const (
+	pprompt = "~> "
+	mjson   = "text/json"
+)
 
 var (
 	noise        = regexp.MustCompile("[~#]")
@@ -142,6 +148,54 @@ func (s *Shell) Run() (j *model.Job, e error) {
 	return s.j, nil
 }
 
+// SubmitJob attempts to submit a Job to the Monitor
+func (s *Shell) SubmitJob(addr string, job *model.Job) error {
+	var (
+		err  error
+		sbuf []byte
+		www  http.Client
+		res  *http.Response
+		buf  bytes.Buffer
+	)
+
+	if sbuf, err = json.Marshal(job); err != nil {
+		s.log.Printf("[ERROR] Cannot serialize Job: %s\n",
+			err.Error())
+		return err
+	}
+
+	buf = *bytes.NewBuffer(sbuf)
+
+	if res, err = www.Post(addr, mjson, &buf); err != nil {
+		s.log.Printf("[ERROR] Failed to speak to web service @ %s: %s\n",
+			addr,
+			err.Error())
+		return err
+	} else if res == nil {
+		err = fmt.Errorf("http.Post returned no error, but nil return response")
+		s.log.Printf("[ERROR] %s\n", err.Error())
+		return err
+	}
+
+	defer res.Body.Close() // nolint: errcheck
+
+	switch res.StatusCode {
+	case 200:
+		// Okeli-dokeli
+	case 500:
+		// We are in trouble
+		err = fmt.Errorf("server-side error attempting to submit Job: %s",
+			res.Status)
+		return err
+	default:
+		s.log.Printf("[DEBUG] Unexpected HTTP status code from daemon: %s\n",
+			res.Status)
+
+	}
+
+	return nil
+} // func (s *Shell) SubmitJob(addr string, job *model.Job) error
+
 func (s *Shell) executor(input string) {
 	s.log.Printf("[TRACE] Executing: %s\n",
 		input)
@@ -175,7 +229,7 @@ STEP:
 		s.log.Printf("[ERROR] Cannot append to history file: %s\n",
 			err.Error())
 	}
-} // func (s *Shell) executor(input string
+} // func (s *Shell) executor(input string)
 
 func (s *Shell) completer(d prompt.Document) []prompt.Suggest {
 	var (

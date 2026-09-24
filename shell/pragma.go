@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 12. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-12 13:01:22 krylon>
+// Time-stamp: <2026-09-24 15:55:44 krylon>
 
 package shell
 
@@ -89,7 +89,7 @@ func (s *Shell) processEnv(tokens []string) error {
 				"unexpected number of pieces in %q: %d (expected 2)",
 				envvar,
 				len(pieces))
-			s.log.Printf("[INFO] \n",
+			s.log.Printf("[INFO] %s\n",
 				err.Error())
 			return err
 		}
@@ -97,7 +97,7 @@ func (s *Shell) processEnv(tokens []string) error {
 		key, val = pieces[0], pieces[1]
 
 		if exval, ok = s.j.Env[key]; ok {
-			err = fmt.Errorf("environment variable %s already exists: %q\n",
+			err = fmt.Errorf("environment variable %s already exists: %q",
 				key,
 				exval)
 			s.log.Printf("[ERROR] %s\n", err.Error())
