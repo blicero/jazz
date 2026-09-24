@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-18 16:41:10 krylon>
+// Time-stamp: <2026-09-24 15:26:53 krylon>
 
 package common
 
@@ -37,6 +37,7 @@ const (
 	AppName                  = "Jazz"
 	Version                  = "0.0.1"
 	Debug                    = true
+	WebPort                  = 4800
 	TimestampFormatMinute    = "2006-01-02 15:04"
 	TimestampFormat          = "2006-01-02 15:04:05"
 	TimestampFormatSubSecond = "2006-01-02 15:04:05.0000 MST"

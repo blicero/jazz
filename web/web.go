@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 04. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-19 13:07:58 krylon>
+// Time-stamp: <2026-09-24 15:23:57 krylon>
 
 // Package web handles job submissions and provides a web interface to the
 // Monitor.
@@ -16,6 +16,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strconv"
 	"sync/atomic"
 	"time"
 
@@ -23,7 +24,6 @@ import (
 	"github.com/blicero/jazz/logdomain"
 	"github.com/blicero/jazz/model"
 	"github.com/blicero/jazz/monitor"
-	"github.com/blicero/jazz/monitor/command"
 	"github.com/gorilla/mux"
 )
 
@@ -33,6 +33,7 @@ const (
 	tmplFolder   = "assets/templates"
 )
 
+// nolint: unused
 func cacheSeconds(seconds int) string {
 	if seconds == 0 {
 		return noCache
@@ -85,6 +86,8 @@ func Create(addr string, mon *monitor.Monitor) (*Web, error) {
 	srv.srv.ErrorLog = srv.log
 	srv.srv.Handler = srv.router
 
+	srv.router.HandleFunc("/ws/job/new", srv.handleSubmit)
+
 	// ...
 
 	return srv, nil
@@ -98,7 +101,7 @@ func (srv *Web) IsActive() bool {
 // Stop tells the JES to stop.
 func (srv *Web) Stop() {
 	srv.active.Store(false)
-	srv.srv.Shutdown(context.Background())
+	srv.srv.Shutdown(context.Background()) // nolint: errcheck
 } // func (j *JES) Stop()
 
 // Run executes the JES server's main loop.
@@ -143,7 +146,6 @@ func (srv *Web) handleSubmit(w http.ResponseWriter, r *http.Request) {
 		msg   string
 		buf   []byte
 		rbuf  bytes.Buffer
-		cmd   command.Command
 		job   = new(model.Job)
 		reply = ajaxResponse{
 			Timestamp: time.Now(),
@@ -171,12 +173,18 @@ func (srv *Web) handleSubmit(w http.ResponseWriter, r *http.Request) {
 		goto SEND
 	}
 
-	cmd.Verb = command.Submit
-	cmd.Object = job
-	srv.mon.CmdQ <- cmd
-
-	reply.Status = true
-	reply.Message = "Success"
+	// cmd.Verb = command.Submit
+	// cmd.Object = job
+	// srv.mon.CmdQ <- cmd
+	if err = srv.mon.SubmitJob(job); err != nil {
+		msg = fmt.Sprintf("Failed to submit Job: %s\n",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", err.Error())
+		reply.Message = msg
+	} else {
+		reply.Status = true
+		reply.Message = strconv.FormatInt(job.ID, 10)
+	}
 
 	if buf, err = json.Marshal(&reply); err != nil {
 		msg = fmt.Sprintf("Failed to serialize response: %s",
