@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 04. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-24 15:23:57 krylon>
+// Time-stamp: <2026-09-27 09:06:32 krylon>
 
 // Package web handles job submissions and provides a web interface to the
 // Monitor.
@@ -147,7 +147,7 @@ func (srv *Web) handleSubmit(w http.ResponseWriter, r *http.Request) {
 		buf   []byte
 		rbuf  bytes.Buffer
 		job   = new(model.Job)
-		reply = ajaxResponse{
+		reply = model.WebResponse{
 			Timestamp: time.Now(),
 		}
 	)

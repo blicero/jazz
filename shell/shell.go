@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 07. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-24 16:04:21 krylon>
+// Time-stamp: <2026-09-27 09:43:34 krylon>
 
 package shell
 
@@ -18,6 +18,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 
 	"github.com/Feralthedogg/go-functional/pkg/functional"
@@ -155,6 +156,7 @@ func (s *Shell) SubmitJob(addr string, job *model.Job) error {
 		sbuf []byte
 		www  http.Client
 		res  *http.Response
+		resp model.WebResponse
 		buf  bytes.Buffer
 	)
 
@@ -181,7 +183,28 @@ func (s *Shell) SubmitJob(addr string, job *model.Job) error {
 
 	switch res.StatusCode {
 	case 200:
-		// Okeli-dokeli
+		if _, err = io.Copy(&buf, res.Body); err != nil {
+			s.log.Printf("[ERROR] Cannot copy response Body: %s\n",
+				err.Error())
+			return err
+		} else if err = json.Unmarshal(buf.Bytes(), &resp); err != nil {
+			s.log.Printf("[ERROR] Cannot unmarshal response: %s\n%s\n\n",
+				err.Error(),
+				buf.String())
+			return err
+		}
+
+		var id int64
+
+		if id, err = strconv.ParseInt(resp.Message, 10, 64); err != nil {
+			s.log.Printf("[ERROR] Cannot parse Job ID %q: %s\n",
+				resp.Message,
+				err.Error())
+			return err
+		}
+
+		s.log.Printf("[INFO] Job %d submitted successfully\n", id)
+		job.ID = id
 	case 500:
 		// We are in trouble
 		err = fmt.Errorf("server-side error attempting to submit Job: %s",
