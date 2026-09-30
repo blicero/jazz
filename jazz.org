@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-09-27 09:44:09 krylon>
+# Time-stamp: <2026-09-30 11:12:22 krylon>
 #
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
@@ -15,31 +15,31 @@
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-09-27 So 09:44]
-   | Headline                                       | Time       |            |       |      |
-   |------------------------------------------------+------------+------------+-------+------|
-   | *Total time*                                   | *1d 23:08* |            |       |      |
-   |------------------------------------------------+------------+------------+-------+------|
-   | *Jazz [7/9]*                                   | *1d 23:08* |            |       |      |
-   | \_  /Components [7/9]/                         |            | /1d 23:08/ |       |      |
-   | \_    Model [0/0]                              |            |            |  0:39 |      |
-   | \_    Database [0/0]                           |            |            |  6:20 |      |
-   | \_    Job Entry [3/3]                          |            |            | 15:36 |      |
-   | \_      Switch from reverse-spool-directory... |            |            |       | 4:08 |
-   | \_      Stringify Jobs                         |            |            |       | 0:56 |
-   | \_      Lua FTW!                               |            |            |       | 1:42 |
-   | \_    Shell [3/4]                              |            |            | 21:11 |      |
-   | \_      Submit Jobs to the web service         |            |            |       | 5:13 |
-   | \_      Pragmas                                |            |            |       | 0:57 |
-   | \_      Intelligent Completion                 |            |            |       | 1:32 |
-   | \_      Reboot                                 |            |            |       | 6:00 |
-   | \_      History                                |            |            |       | 1:05 |
-   | \_    Monitor [0/1]                            |            |            |  0:59 |      |
-   | \_      Submitting/Accepting Jobs              |            |            |       | 0:23 |
-   | \_    Web [0/0]                                |            |            |  1:41 |      |
-   | \_      Web Service [0/0]                      |            |            |       | 0:06 |
-   | \_    Main/Common [1/1]                        |            |            |  0:42 |      |
-   | \_      Supress logging to terminal when...    |            |            |       | 0:22 |
+   #+CAPTION: Clock summary at [2026-09-30 Mi 11:12]
+   | Headline                                       | Time      |           |       |      |
+   |------------------------------------------------+-----------+-----------+-------+------|
+   | *Total time*                                   | *2d 1:19* |           |       |      |
+   |------------------------------------------------+-----------+-----------+-------+------|
+   | *Jazz [7/9]*                                   | *2d 1:19* |           |       |      |
+   | \_  /Components [7/9]/                         |           | /2d 1:19/ |       |      |
+   | \_    Model [0/0]                              |           |           |  0:39 |      |
+   | \_    Database [0/0]                           |           |           |  6:20 |      |
+   | \_    Job Entry [3/3]                          |           |           | 15:36 |      |
+   | \_      Switch from reverse-spool-directory... |           |           |       | 4:08 |
+   | \_      Stringify Jobs                         |           |           |       | 0:56 |
+   | \_      Lua FTW!                               |           |           |       | 1:42 |
+   | \_    Shell [3/4]                              |           |           | 23:22 |      |
+   | \_      Submit Jobs to the web service         |           |           |       | 7:24 |
+   | \_      Pragmas                                |           |           |       | 0:57 |
+   | \_      Intelligent Completion                 |           |           |       | 1:32 |
+   | \_      Reboot                                 |           |           |       | 6:00 |
+   | \_      History                                |           |           |       | 1:05 |
+   | \_    Monitor [0/1]                            |           |           |  0:59 |      |
+   | \_      Submitting/Accepting Jobs              |           |           |       | 0:23 |
+   | \_    Web [0/0]                                |           |           |  1:41 |      |
+   | \_      Web Service [0/0]                      |           |           |       | 0:06 |
+   | \_    Main/Common [1/1]                        |           |           |  0:42 |      |
+   | \_      Supress logging to terminal when...    |           |           |       | 0:22 |
    #+END:
 ** Components [7/9]
    :PROPERTIES:
@@ -132,6 +132,8 @@
      :END:
 **** TODO Submit Jobs to the web service
      :LOGBOOK:
+     CLOCK: [2026-09-30 Mi 10:33]--[2026-09-30 Mi 11:12] =>  0:39
+     CLOCK: [2026-09-28 Mo 08:24]--[2026-09-28 Mo 09:56] =>  1:32
      CLOCK: [2026-09-27 So 09:05]--[2026-09-27 So 09:43] =>  0:38
      CLOCK: [2026-09-26 Sa 10:31]--[2026-09-26 Sa 11:11] =>  0:40
      CLOCK: [2026-09-22 Di 11:03]--[2026-09-22 Di 13:07] =>  2:04
