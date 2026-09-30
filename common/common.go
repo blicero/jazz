@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-24 15:26:53 krylon>
+// Time-stamp: <2026-09-30 11:05:20 krylon>
 
 package common
 
@@ -100,7 +100,7 @@ var SpoolDir = filepath.Join(BaseDir, "spool")
 
 var HistPath = filepath.Join(BaseDir, "shell_history")
 
-var SockPath = filepath.Join(BaseDir, "jes.sock")
+var WebAddr = fmt.Sprintf(":%d", WebPort)
 
 // Interactive is true if we are running a Shell to prompt commands for
 // Job submission.
@@ -121,7 +121,6 @@ func InitApp() error {
 	DbPath = filepath.Join(BaseDir, fmt.Sprintf("%s.db", strings.ToLower(AppName)))
 	CfgPath = filepath.Join(BaseDir, fmt.Sprintf("%s.toml", strings.ToLower(AppName)))
 	HistPath = filepath.Join(BaseDir, "shell_history")
-	SockPath = filepath.Join(BaseDir, "jes.sock")
 
 	return nil
 } // func InitApp() error
@@ -144,7 +143,6 @@ func SetBaseDir(path string) error {
 	CfgPath = filepath.Join(BaseDir, fmt.Sprintf("%s.toml", strings.ToLower(AppName)))
 	SpoolDir = filepath.Join(BaseDir, "spool")
 	HistPath = filepath.Join(BaseDir, "shell_history")
-	SockPath = filepath.Join(BaseDir, "jes.sock")
 
 	var (
 		err error

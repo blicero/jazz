@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-21 21:15:58 krylon>
+// Time-stamp: <2026-09-30 10:59:28 krylon>
 
 package main
 
@@ -44,9 +44,9 @@ func main() {
 
 	flag.StringVar(
 		&webAddr,
-		"socket",
-		common.SockPath,
-		"path for the socket for submitting Jobs",
+		"addr",
+		common.WebAddr,
+		"address of the web server to listen on or talk to",
 	)
 
 	flag.BoolVar(
@@ -79,6 +79,8 @@ func main() {
 			j *model.Job
 		)
 
+		webAddr = fmt.Sprintf("http://localhost%s", webAddr)
+
 		common.Interactive.Store(true)
 
 		if s, err = shell.Create(doComplete); err != nil {
@@ -93,7 +95,7 @@ func main() {
 				"Error prompting for Job: %s\n",
 				err.Error())
 			os.Exit(1)
-		} else if err = submitJob(webAddr, j); err != nil {
+		} else if err = s.SubmitJob(webAddr, j); err != nil {
 			fmt.Fprintf(
 				os.Stderr,
 				"Failed to submit Job to Job queue %s: %s\n",
@@ -115,7 +117,7 @@ func main() {
 	} else if srv, err = web.Create(webAddr, mon); err != nil {
 		fmt.Fprintf(
 			os.Stderr,
-			"Error creating JES: %s\n",
+			"Error creating Web server: %s\n",
 			err.Error(),
 		)
 		os.Exit(1)

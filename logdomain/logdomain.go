@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-07 12:04:15 krylon>
+// Time-stamp: <2026-09-30 10:44:21 krylon>
 
 //go:generate stringer -type=ID
 
@@ -18,7 +18,7 @@ const (
 	Database
 	Queue
 	Monitor
-	JES
+	Web
 	Shell
 )
 
@@ -29,7 +29,7 @@ func All() []ID {
 		Database,
 		Queue,
 		Monitor,
-		JES,
+		Web,
 		Shell,
 	}
 } // func All() []ID

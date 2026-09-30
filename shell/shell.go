@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 07. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-27 09:43:34 krylon>
+// Time-stamp: <2026-09-30 11:06:18 krylon>
 
 package shell
 
@@ -145,9 +145,8 @@ func (s *Shell) Run() (j *model.Job, e error) {
 	}()
 
 	s.shell.Run()
-
 	return s.j, nil
-}
+} // func (s *Shell) Run() (j *model.Job, e error)
 
 // SubmitJob attempts to submit a Job to the Monitor
 func (s *Shell) SubmitJob(addr string, job *model.Job) error {

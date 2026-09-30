@@ -1,8 +1,8 @@
-// /home/krylon/go/src/github.com/blicero/jazz/jes/00_main_test.go
+// /home/krylon/go/src/github.com/blicero/jazz/web/00_main_test.go
 // -*- mode: go; coding: utf-8; -*-
 // Created on 07. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-19 12:13:38 krylon>
+// Time-stamp: <2026-09-30 10:46:18 krylon>
 
 package web
 

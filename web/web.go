@@ -1,8 +1,8 @@
-// /home/krylon/go/src/github.com/blicero/jazz/jes/jes.go
+// /home/krylon/go/src/github.com/blicero/jazz/web/web.go
 // -*- mode: go; coding: utf-8; -*-
 // Created on 04. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-27 09:06:32 krylon>
+// Time-stamp: <2026-09-30 10:46:18 krylon>
 
 // Package web handles job submissions and provides a web interface to the
 // Monitor.
@@ -55,7 +55,7 @@ type Web struct {
 	mimeTypes map[string]string
 }
 
-// Create creates and returns a new JES instance.
+// Create creates and returns a new Web server instance.
 func Create(addr string, mon *monitor.Monitor) (*Web, error) {
 	var (
 		err error
@@ -78,7 +78,7 @@ func Create(addr string, mon *monitor.Monitor) (*Web, error) {
 		}
 	)
 
-	if srv.log, err = common.GetLogger(logdomain.JES); err != nil {
+	if srv.log, err = common.GetLogger(logdomain.Web); err != nil {
 		return nil, err
 	}
 
@@ -93,18 +93,18 @@ func Create(addr string, mon *monitor.Monitor) (*Web, error) {
 	return srv, nil
 } // func Create(addr string, mon *monitor.Monitor) (*Web, error)
 
-// IsActive returns the value of the JES' active flag.
+// IsActive returns the value of the Web server's active flag.
 func (srv *Web) IsActive() bool {
 	return srv.active.Load()
-} // func (j *JES) IsActive() bool
+} // func (srv *Web) IsActive() bool
 
-// Stop tells the JES to stop.
+// Stop tells the Web server to stop.
 func (srv *Web) Stop() {
 	srv.active.Store(false)
 	srv.srv.Shutdown(context.Background()) // nolint: errcheck
-} // func (j *JES) Stop()
+} // func (srv *Web) Stop()
 
-// Run executes the JES server's main loop.
+// Run executes the Web server's main loop.
 func (srv *Web) Run() {
 	var (
 		err     error
@@ -112,11 +112,11 @@ func (srv *Web) Run() {
 	)
 
 	if swapped = srv.active.CompareAndSwap(false, true); !swapped {
-		srv.log.Printf("[INFO] JES appears to be running already. Toodles!\n")
+		srv.log.Printf("[INFO] Web server appears to be running already. Toodles!\n")
 		return
 	}
 
-	defer srv.log.Printf("[INFO] JES is shutting down.\n")
+	defer srv.log.Printf("[INFO] Web server is shutting down.\n")
 
 	// I have initially copied this from some tutorial or documentation, but
 	// I am not sure if it is really necessary. OTOH, it does not appear to
@@ -127,7 +127,7 @@ func (srv *Web) Run() {
 		srv.log.Printf("[ERROR] The web server ran into an error: %s\n",
 			err.Error())
 	}
-} // func (j *JES) Run()
+} // func (srv *Web) Run()
 
 //////////////////////////////////////////////////////////////////////////////
 /// Handle requests //////////////////////////////////////////////////////////
