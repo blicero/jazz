@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 02. 2021 by Benjamin Walkenhorst
 // (c) 2021 Benjamin Walkenhorst
-// Time-stamp: <2026-09-30 10:43:47 krylon>
+// Time-stamp: <2026-10-02 10:23:21 krylon>
 
 //go:build ignore
 
@@ -62,6 +62,7 @@ var candidates = map[string][]string{
 		"logdomain",
 		"model/predicate",
 		"monitor/command",
+		"client/cmd",
 	},
 	"vet": {
 		"logdomain",
@@ -72,6 +73,8 @@ var candidates = map[string][]string{
 		"monitor/command",
 		"monitor",
 		"web",
+		"client",
+		"client/cmd",
 	},
 	"lint": {
 		"logdomain",
@@ -82,6 +85,8 @@ var candidates = map[string][]string{
 		"monitor/command",
 		"monitor",
 		"web",
+		"client",
+		"client/cmd",
 	},
 	"nilaway": {
 		"logdomain",
@@ -92,6 +97,8 @@ var candidates = map[string][]string{
 		"monitor/command",
 		"monitor",
 		"web",
+		"client",
+		"client/cmd",
 	},
 	"test": {
 		"database",
