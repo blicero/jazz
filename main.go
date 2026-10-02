@@ -2,24 +2,31 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-30 10:59:28 krylon>
+// Time-stamp: <2026-10-02 11:16:47 krylon>
 
 package main
 
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
+	"github.com/blicero/jazz/client"
 	"github.com/blicero/jazz/common"
+	"github.com/blicero/jazz/database"
+	"github.com/blicero/jazz/logdomain"
 	"github.com/blicero/jazz/model"
 	"github.com/blicero/jazz/monitor"
 	"github.com/blicero/jazz/shell"
 	"github.com/blicero/jazz/web"
 )
+
+var glog *log.Logger
 
 func main() {
 	fmt.Printf("%s %s\nbuilt on %s\n",
@@ -28,11 +35,13 @@ func main() {
 		common.BuildStamp.Format(common.TimestampFormat))
 
 	var (
-		err                  error
-		doSubmit, doComplete bool
-		baseDir, webAddr     string
-		srv                  *web.Web
-		mon                  *monitor.Monitor
+		err              error
+		doComplete       bool
+		baseDir, webAddr string
+		srv              *web.Web
+		mon              *monitor.Monitor
+		command          string = "list"
+		wsc              *client.Client
 	)
 
 	flag.StringVar(
@@ -50,13 +59,6 @@ func main() {
 	)
 
 	flag.BoolVar(
-		&doSubmit,
-		"submit",
-		false,
-		"prompt for a new Job to submit",
-	)
-
-	flag.BoolVar(
 		&doComplete,
 		"complete",
 		true,
@@ -71,15 +73,35 @@ func main() {
 			"cannot initialize environment - %s\n",
 			err.Error())
 		os.Exit(1)
+	} else if flag.NArg() >= 1 {
+		command = flag.Arg(0)
+	} else {
+		fmt.Fprintf(
+			os.Stderr,
+			"What do you want me to DO???\n")
 	}
 
-	if doSubmit {
+	if glog, err = common.GetLogger(logdomain.Main); err != nil {
+		fmt.Fprintf(
+			os.Stderr,
+			"Cannot initialize Logger: %s\n",
+			err.Error())
+		os.Exit(1)
+	}
+
+	switch strings.ToLower(command) {
+	case "submit", "shell":
 		var (
 			s *shell.Shell
 			j *model.Job
 		)
 
-		webAddr = fmt.Sprintf("http://localhost%s", webAddr)
+		if wsc, err = client.New(webAddr); err != nil {
+			glog.Printf("[ERROR] Cannot create WS client for %s: %s\n",
+				webAddr,
+				err.Error())
+			os.Exit(1)
+		}
 
 		common.Interactive.Store(true)
 
@@ -95,7 +117,7 @@ func main() {
 				"Error prompting for Job: %s\n",
 				err.Error())
 			os.Exit(1)
-		} else if err = s.SubmitJob(webAddr, j); err != nil {
+		} else if err = wsc.JobSubmit(j); err != nil {
 			fmt.Fprintf(
 				os.Stderr,
 				"Failed to submit Job to Job queue %s: %s\n",
@@ -107,41 +129,91 @@ func main() {
 		fmt.Printf("Submit Job:\n%s", j.PrettyPrint())
 
 		os.Exit(0)
-	} else if mon, err = monitor.Create(); err != nil {
-		fmt.Fprintf(
-			os.Stderr,
-			"Error creating Monitor: %s\n",
-			err.Error(),
+	case "list":
+		var (
+			db   *database.Database
+			jobs []*model.Job
 		)
-		os.Exit(1)
-	} else if srv, err = web.Create(webAddr, mon); err != nil {
-		fmt.Fprintf(
-			os.Stderr,
-			"Error creating Web server: %s\n",
-			err.Error(),
-		)
-		os.Exit(1)
-	}
 
-	sigQ := make(chan os.Signal, 1)
-	signal.Notify(sigQ, os.Interrupt, syscall.SIGTERM)
+		if db, err = database.Open(common.DbPath); err != nil {
+			if err.Error() == "timeout" {
+				// This most likely means the database is locked
+				// because the server is running.
+				// In this case, we should try the web service.
+				if wsc, err = client.New(webAddr); err != nil {
+					glog.Printf("[CRITICAL] Cannot create WS Client: %s\n", err.Error())
+					os.Exit(1)
+				} else if jobs, err = wsc.QueryQueue(); err != nil {
+					glog.Printf("[ERROR] Query for Job Queue failed: %s\n",
+						err.Error())
+					os.Exit(1)
+				}
+			} else if jobs, err = db.JobGetAll(); err != nil {
+			} else {
+				fmt.Fprintf(
+					os.Stderr,
+					"Cannot list jobs: %s\n",
+					err.Error())
+				os.Exit(1)
+			}
+		}
 
-	ticker := time.NewTicker(common.TickInterval)
-	defer ticker.Stop()
-
-	mon.Start()
-	go srv.Run()
-
-	for {
-		select {
-		case <-ticker.C:
-			// foo
-		case s := <-sigQ:
+		if len(jobs) == 0 {
+			fmt.Println("Job Queue is empty")
+		} else {
+			for idx, job := range jobs {
+				fmt.Printf("%03d Job %d - %s - %s\n",
+					idx,
+					job.ID,
+					job.Name,
+					job.WorkDir)
+			}
+		}
+	case "serve", "daemon", "queue":
+		fmt.Printf("Run daemon at %s\n",
+			webAddr)
+		if mon, err = monitor.Create(); err != nil {
 			fmt.Fprintf(
 				os.Stderr,
-				"Okay, okay, I'm quitting: %s\n",
-				s)
-			os.Exit(0)
+				"Error creating Monitor: %s\n",
+				err.Error(),
+			)
+			os.Exit(1)
+		} else if srv, err = web.Create(webAddr, mon); err != nil {
+			fmt.Fprintf(
+				os.Stderr,
+				"Error creating Web server: %s\n",
+				err.Error(),
+			)
+			os.Exit(1)
 		}
+
+		sigQ := make(chan os.Signal, 1)
+		signal.Notify(sigQ, os.Interrupt, syscall.SIGTERM)
+
+		ticker := time.NewTicker(common.TickInterval)
+		defer ticker.Stop()
+
+		mon.Start()
+		go srv.Run()
+
+		for {
+			select {
+			case <-ticker.C:
+				// foo
+			case s := <-sigQ:
+				fmt.Fprintf(
+					os.Stderr,
+					"Okay, okay, I'm quitting: %s\n",
+					s)
+				os.Exit(0)
+			}
+		}
+	default:
+		fmt.Fprintf(
+			os.Stderr,
+			"What do you mean I should %s? I'm quitting\n",
+			command)
+		os.Exit(0)
 	}
 } // func main()

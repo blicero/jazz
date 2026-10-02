@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-21 08:21:30 krylon>
+// Time-stamp: <2026-10-01 10:46:19 krylon>
 
 // Package monitor implements the heart of the application, so to speak.
 package monitor
@@ -149,6 +149,22 @@ func (mon *Monitor) SubmitJob(job *model.Job) error {
 
 	return nil
 } // func (mon *Monitor) SubmitJob(job *model.Job) error
+
+// GetQueuedJobs returns a slice of the currently enqueued Jobs.
+func (mon *Monitor) GetQueuedJobs() ([]*model.Job, error) {
+	var (
+		err  error
+		jobs []*model.Job
+	)
+
+	if jobs, err = mon.db.JobGetAll(); err != nil {
+		mon.log.Printf("[ERROR] Failed to query Job queue: %s\n",
+			err.Error())
+		return nil, err
+	}
+
+	return jobs, nil
+} // func (mon *Monitor) GetQueuedJobs() ([]*model.Job, error)
 
 // nolint: unused
 func (mon *Monitor) execute(job *model.Job) error {

@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 04. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-30 10:46:18 krylon>
+// Time-stamp: <2026-10-01 10:57:56 krylon>
 
 // Package web handles job submissions and provides a web interface to the
 // Monitor.
@@ -87,6 +87,7 @@ func Create(addr string, mon *monitor.Monitor) (*Web, error) {
 	srv.srv.Handler = srv.router
 
 	srv.router.HandleFunc("/ws/job/new", srv.handleSubmit)
+	srv.router.HandleFunc("/ws/job/all", srv.handleQueryQueuedJobs)
 
 	// ...
 
@@ -171,12 +172,7 @@ func (srv *Web) handleSubmit(w http.ResponseWriter, r *http.Request) {
 		srv.log.Printf("[ERROR] %s\n", msg)
 		buf = errJSON(msg)
 		goto SEND
-	}
-
-	// cmd.Verb = command.Submit
-	// cmd.Object = job
-	// srv.mon.CmdQ <- cmd
-	if err = srv.mon.SubmitJob(job); err != nil {
+	} else if err = srv.mon.SubmitJob(job); err != nil {
 		msg = fmt.Sprintf("Failed to submit Job: %s\n",
 			err.Error())
 		srv.log.Printf("[ERROR] %s\n", err.Error())
@@ -200,3 +196,47 @@ SEND:
 	w.WriteHeader(200)
 	w.Write(buf) // nolint: errcheck,gosec
 } // func (srv *Web) handleSubmit(w http.ResponseWriter, r *http.Request)
+
+func (srv *Web) handleQueryQueuedJobs(w http.ResponseWriter, r *http.Request) {
+	srv.log.Printf("[TRACE] Handle %s from %s\n",
+		r.URL,
+		r.RemoteAddr)
+	var (
+		err   error
+		jobs  []*model.Job
+		msg   string
+		buf   []byte
+		reply = model.WebResponse{
+			Timestamp: time.Now(),
+		}
+	)
+
+	if jobs, err = srv.mon.GetQueuedJobs(); err != nil {
+		reply.Message = fmt.Sprintf("Failed to get queued Jobs from Monitor: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", reply.Message)
+		goto SEND
+	} else if buf, err = json.Marshal(jobs); err != nil {
+		reply.Message = fmt.Sprintf("Failed to serialize Jobs: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n",
+			reply.Message)
+		goto SEND
+	}
+
+	reply.Payload = string(buf)
+
+	if buf, err = json.Marshal(&reply); err != nil {
+		msg = fmt.Sprintf("Failed to serialize response: %s",
+			err.Error())
+		srv.log.Printf("[ERROR] %s\n", msg)
+		buf = errJSON(msg)
+		goto SEND
+	}
+
+SEND:
+	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set("Cache-Control", noCache)
+	w.WriteHeader(200)
+	w.Write(buf) // nolint: errcheck,gosec
+} // func (srv *Web) handleQueryQueuedJobs(w http.ResponseWriter, r *http.Request)
