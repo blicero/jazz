@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-10-02 11:16:47 krylon>
+// Time-stamp: <2026-10-02 11:51:44 krylon>
 
 package main
 
@@ -18,7 +18,6 @@ import (
 
 	"github.com/blicero/jazz/client"
 	"github.com/blicero/jazz/common"
-	"github.com/blicero/jazz/database"
 	"github.com/blicero/jazz/logdomain"
 	"github.com/blicero/jazz/model"
 	"github.com/blicero/jazz/monitor"
@@ -131,31 +130,16 @@ func main() {
 		os.Exit(0)
 	case "list":
 		var (
-			db   *database.Database
 			jobs []*model.Job
 		)
 
-		if db, err = database.Open(common.DbPath); err != nil {
-			if err.Error() == "timeout" {
-				// This most likely means the database is locked
-				// because the server is running.
-				// In this case, we should try the web service.
-				if wsc, err = client.New(webAddr); err != nil {
-					glog.Printf("[CRITICAL] Cannot create WS Client: %s\n", err.Error())
-					os.Exit(1)
-				} else if jobs, err = wsc.QueryQueue(); err != nil {
-					glog.Printf("[ERROR] Query for Job Queue failed: %s\n",
-						err.Error())
-					os.Exit(1)
-				}
-			} else if jobs, err = db.JobGetAll(); err != nil {
-			} else {
-				fmt.Fprintf(
-					os.Stderr,
-					"Cannot list jobs: %s\n",
-					err.Error())
-				os.Exit(1)
-			}
+		if wsc, err = client.New(webAddr); err != nil {
+			glog.Printf("[CRITICAL] Cannot create WS Client: %s\n", err.Error())
+			os.Exit(1)
+		} else if jobs, err = wsc.QueryQueue(); err != nil {
+			glog.Printf("[ERROR] Query for Job Queue failed: %s\n",
+				err.Error())
+			os.Exit(1)
 		}
 
 		if len(jobs) == 0 {
