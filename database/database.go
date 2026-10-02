@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-18 17:52:43 krylon>
+// Time-stamp: <2026-10-01 11:05:28 krylon>
 
 // Package database provides persistence for the Job Queue.
 package database
@@ -47,19 +47,45 @@ func Open(path string) (*Database, error) {
 	var (
 		err error
 		db  = &Database{path: path}
+		opt = &bolt.Options{
+			Timeout: common.Timeout,
+		}
 	)
 
 	if db.log, err = common.GetLogger(logdomain.Database); err != nil {
 		return nil, err
-	} else if db.db, err = bolt.Open(path, 0600, nil); err != nil {
+	} else if db.db, err = bolt.Open(path, 0600, opt); err != nil {
 		db.log.Printf("[CRITICAL] Failed to open database at %s: %s\n",
 			path,
+			err.Error())
+		return nil, err
+	} else if err = db.initalize(); err != nil {
+		db.log.Printf("[CRITICAL] Failed to initialize database: %s\n",
 			err.Error())
 		return nil, err
 	}
 
 	return db, nil
 } // func Open(path string) (*Database, error)
+
+func (db *Database) initalize() error {
+	var err = db.db.Update(func(tx *bolt.Tx) error {
+		var (
+			ex error
+		)
+
+		if _, ex = tx.CreateBucketIfNotExists([]byte(bucketName)); ex != nil {
+			db.log.Printf("[CRITICAL] Cannot create bucket %s: %s\n",
+				bucketName,
+				ex.Error())
+			return ex
+		}
+
+		return nil
+	})
+
+	return err
+} // func (db *Database) initalize() error
 
 // JobAdd saves a Job to the database.
 func (db *Database) JobAdd(j *model.Job) error {
