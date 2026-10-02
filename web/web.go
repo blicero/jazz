@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 04. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-10-01 10:57:56 krylon>
+// Time-stamp: <2026-10-02 14:08:17 krylon>
 
 // Package web handles job submissions and provides a web interface to the
 // Monitor.
@@ -225,6 +225,7 @@ func (srv *Web) handleQueryQueuedJobs(w http.ResponseWriter, r *http.Request) {
 	}
 
 	reply.Payload = string(buf)
+	reply.Status = true
 
 	if buf, err = json.Marshal(&reply); err != nil {
 		msg = fmt.Sprintf("Failed to serialize response: %s",
