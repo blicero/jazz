@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-30 10:44:21 krylon>
+// Time-stamp: <2026-10-02 10:13:24 krylon>
 
 //go:generate stringer -type=ID
 
@@ -20,6 +20,9 @@ const (
 	Monitor
 	Web
 	Shell
+	Common
+	Main
+	Client
 )
 
 // All returns all defined ID values.
@@ -31,5 +34,8 @@ func All() []ID {
 		Monitor,
 		Web,
 		Shell,
+		Common,
+		Main,
+		Client,
 	}
 } // func All() []ID

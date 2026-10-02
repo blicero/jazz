@@ -2,23 +2,19 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 07. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-30 11:06:18 krylon>
+// Time-stamp: <2026-10-02 11:07:02 krylon>
 
 package shell
 
 import (
 	"bytes"
-	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"log"
-	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
 	"slices"
-	"strconv"
 	"strings"
 
 	"github.com/Feralthedogg/go-functional/pkg/functional"
@@ -147,76 +143,6 @@ func (s *Shell) Run() (j *model.Job, e error) {
 	s.shell.Run()
 	return s.j, nil
 } // func (s *Shell) Run() (j *model.Job, e error)
-
-// SubmitJob attempts to submit a Job to the Monitor
-func (s *Shell) SubmitJob(addr string, job *model.Job) error {
-	var (
-		err  error
-		sbuf []byte
-		www  http.Client
-		res  *http.Response
-		resp model.WebResponse
-		buf  bytes.Buffer
-	)
-
-	if sbuf, err = json.Marshal(job); err != nil {
-		s.log.Printf("[ERROR] Cannot serialize Job: %s\n",
-			err.Error())
-		return err
-	}
-
-	buf = *bytes.NewBuffer(sbuf)
-
-	if res, err = www.Post(addr, mjson, &buf); err != nil {
-		s.log.Printf("[ERROR] Failed to speak to web service @ %s: %s\n",
-			addr,
-			err.Error())
-		return err
-	} else if res == nil {
-		err = fmt.Errorf("http.Post returned no error, but nil return response")
-		s.log.Printf("[ERROR] %s\n", err.Error())
-		return err
-	}
-
-	defer res.Body.Close() // nolint: errcheck
-
-	switch res.StatusCode {
-	case 200:
-		if _, err = io.Copy(&buf, res.Body); err != nil {
-			s.log.Printf("[ERROR] Cannot copy response Body: %s\n",
-				err.Error())
-			return err
-		} else if err = json.Unmarshal(buf.Bytes(), &resp); err != nil {
-			s.log.Printf("[ERROR] Cannot unmarshal response: %s\n%s\n\n",
-				err.Error(),
-				buf.String())
-			return err
-		}
-
-		var id int64
-
-		if id, err = strconv.ParseInt(resp.Message, 10, 64); err != nil {
-			s.log.Printf("[ERROR] Cannot parse Job ID %q: %s\n",
-				resp.Message,
-				err.Error())
-			return err
-		}
-
-		s.log.Printf("[INFO] Job %d submitted successfully\n", id)
-		job.ID = id
-	case 500:
-		// We are in trouble
-		err = fmt.Errorf("server-side error attempting to submit Job: %s",
-			res.Status)
-		return err
-	default:
-		s.log.Printf("[DEBUG] Unexpected HTTP status code from daemon: %s\n",
-			res.Status)
-
-	}
-
-	return nil
-} // func (s *Shell) SubmitJob(addr string, job *model.Job) error
 
 func (s *Shell) executor(input string) {
 	s.log.Printf("[TRACE] Executing: %s\n",
