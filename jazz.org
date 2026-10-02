@@ -1,5 +1,5 @@
 # -*- mode: org; fill-column: 78; -*-
-# Time-stamp: <2026-09-30 11:12:22 krylon>
+# Time-stamp: <2026-10-02 14:16:32 krylon>
 #
 #+TAGS: internals(i) ui(u) bug(b) feature(f)
 #+TAGS: database(d) design(e), meditation(m)
@@ -8,40 +8,41 @@
 #+TODO: MEDITATE(m) PLANNING(p) | SUSPENDED(s)
 #+PRIORITIES: A G D
 
-* Jazz [7/9]
+* Jazz [8/11]
   :PROPERTIES:
   :COOKIE_DATA: todo recursive
   :VISIBILITY: all
   :END:
 ** Clocktable
    #+BEGIN: clocktable :scope file :maxlevel 255 :emphasize t
-   #+CAPTION: Clock summary at [2026-09-30 Mi 11:12]
-   | Headline                                       | Time      |           |       |      |
-   |------------------------------------------------+-----------+-----------+-------+------|
-   | *Total time*                                   | *2d 1:19* |           |       |      |
-   |------------------------------------------------+-----------+-----------+-------+------|
-   | *Jazz [7/9]*                                   | *2d 1:19* |           |       |      |
-   | \_  /Components [7/9]/                         |           | /2d 1:19/ |       |      |
-   | \_    Model [0/0]                              |           |           |  0:39 |      |
-   | \_    Database [0/0]                           |           |           |  6:20 |      |
-   | \_    Job Entry [3/3]                          |           |           | 15:36 |      |
-   | \_      Switch from reverse-spool-directory... |           |           |       | 4:08 |
-   | \_      Stringify Jobs                         |           |           |       | 0:56 |
-   | \_      Lua FTW!                               |           |           |       | 1:42 |
-   | \_    Shell [3/4]                              |           |           | 23:22 |      |
-   | \_      Submit Jobs to the web service         |           |           |       | 7:24 |
-   | \_      Pragmas                                |           |           |       | 0:57 |
-   | \_      Intelligent Completion                 |           |           |       | 1:32 |
-   | \_      Reboot                                 |           |           |       | 6:00 |
-   | \_      History                                |           |           |       | 1:05 |
-   | \_    Monitor [0/1]                            |           |           |  0:59 |      |
-   | \_      Submitting/Accepting Jobs              |           |           |       | 0:23 |
-   | \_    Web [0/0]                                |           |           |  1:41 |      |
-   | \_      Web Service [0/0]                      |           |           |       | 0:06 |
-   | \_    Main/Common [1/1]                        |           |           |  0:42 |      |
-   | \_      Supress logging to terminal when...    |           |           |       | 0:22 |
+   #+CAPTION: Clock summary at [2026-10-02 Fr 14:16]
+   | Headline                                       | Time       |            |         |      |
+   |------------------------------------------------+------------+------------+---------+------|
+   | *Total time*                                   | *2d 10:19* |            |         |      |
+   |------------------------------------------------+------------+------------+---------+------|
+   | *Jazz [8/11]*                                  | *2d 10:19* |            |         |      |
+   | \_  /Components [8/11]/                        |            | /2d 10:19/ |         |      |
+   | \_    Model [0/0]                              |            |            |    0:39 |      |
+   | \_    Database [0/0]                           |            |            |    6:28 |      |
+   | \_    Job Entry [3/3]                          |            |            |   15:36 |      |
+   | \_      Switch from reverse-spool-directory... |            |            |         | 4:08 |
+   | \_      Stringify Jobs                         |            |            |         | 0:56 |
+   | \_      Lua FTW!                               |            |            |         | 1:42 |
+   | \_    Shell [3/5]                              |            |            | 1d 0:57 |      |
+   | \_      Submit Jobs to the web service         |            |            |         | 8:59 |
+   | \_      Pragmas                                |            |            |         | 0:57 |
+   | \_      Intelligent Completion                 |            |            |         | 1:32 |
+   | \_      Reboot                                 |            |            |         | 6:00 |
+   | \_      History                                |            |            |         | 1:05 |
+   | \_    Monitor [0/1]                            |            |            |    0:59 |      |
+   | \_      Submitting/Accepting Jobs              |            |            |         | 0:23 |
+   | \_    Web [0/0]                                |            |            |    2:03 |      |
+   | \_      Web Service [0/0]                      |            |            |         | 0:28 |
+   | \_    Main/Common [2/2]                        |            |            |    7:37 |      |
+   | \_      Supress logging to terminal when...    |            |            |         | 0:22 |
+   | \_      Query current queue                    |            |            |         | 6:55 |
    #+END:
-** Components [7/9]
+** Components [8/11]
    :PROPERTIES:
    :COOKIE_DATA: todo recursive
    :VISIBILITY: all
@@ -60,6 +61,7 @@
     :VISIBILITY: all
     :END:
     :LOGBOOK:
+    CLOCK: [2026-10-01 Do 10:26]--[2026-10-01 Do 10:34] =>  0:08
     CLOCK: [2026-09-02 Mi 10:56]--[2026-09-02 Mi 13:33] =>  2:37
     CLOCK: [2026-09-01 Di 19:13]--[2026-09-01 Di 22:56] =>  3:43
     :END:
@@ -118,7 +120,7 @@
      each time I want to run a Job.
      The interface should probably be more like at of at(1) where I just enter
      a sequence of commands.
-*** Shell [3/4]
+*** Shell [3/5]
      :PROPERTIES:
      :COOKIE_DATA: todo recursive
      :VISIBILITY: all
@@ -132,6 +134,7 @@
      :END:
 **** TODO Submit Jobs to the web service
      :LOGBOOK:
+     CLOCK: [2026-09-30 Mi 11:50]--[2026-09-30 Mi 13:25] =>  1:35
      CLOCK: [2026-09-30 Mi 10:33]--[2026-09-30 Mi 11:12] =>  0:39
      CLOCK: [2026-09-28 Mo 08:24]--[2026-09-28 Mo 09:56] =>  1:32
      CLOCK: [2026-09-27 So 09:05]--[2026-09-27 So 09:43] =>  0:38
@@ -139,6 +142,7 @@
      CLOCK: [2026-09-22 Di 11:03]--[2026-09-22 Di 13:07] =>  2:04
      CLOCK: [2026-09-21 Mo 20:02]--[2026-09-21 Mo 21:53] =>  1:51
      :END:
+**** TODO Define URLs / End points / API
 **** DONE Pragmas
      CLOSED: [2026-09-19 Sa 12:08]
      :LOGBOOK:
@@ -199,6 +203,7 @@
      :VISIBILITY: all
      :END:
      :LOGBOOK:
+     CLOCK: [2026-10-01 Do 10:42]--[2026-10-01 Do 11:04] =>  0:22
      CLOCK: [2026-09-19 Sa 12:24]--[2026-09-19 Sa 12:30] =>  0:06
      :END:
      The web server offers a web service to the CLI client for submitting and
@@ -208,7 +213,7 @@
      :COOKIE_DATA: todo recursive
      :VISIBILITY: all
      :END:
-*** Main/Common [1/1]
+*** Main/Common [2/2]
     :PROPERTIES:
     :COOKIE_DATA: todo recursive
     :VISIBILITY: all
@@ -220,6 +225,15 @@
      CLOSED: [2026-09-09 Mi 00:45]
      :LOGBOOK:
      CLOCK: [2026-09-08 Di 11:28]--[2026-09-08 Di 11:50] =>  0:22
+     :END:
+**** DONE Query current queue
+     CLOSED: [2026-10-02 Fr 14:16]
+     :LOGBOOK:
+     CLOCK: [2026-10-02 Fr 10:12]--[2026-10-02 Fr 14:16] =>  4:04
+     CLOCK: [2026-10-02 Fr 10:07]--[2026-10-02 Fr 10:08] =>  0:01
+     CLOCK: [2026-10-01 Do 11:04]--[2026-10-01 Do 13:35] =>  2:31
+     CLOCK: [2026-10-01 Do 10:34]--[2026-10-01 Do 10:42] =>  0:08
+     CLOCK: [2026-10-01 Do 10:15]--[2026-10-01 Do 10:26] =>  0:11
      :END:
 ** Features [0/0]
    :PROPERTIES:
