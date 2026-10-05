@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-10-01 11:05:28 krylon>
+// Time-stamp: <2026-10-05 11:01:41 krylon>
 
 // Package database provides persistence for the Job Queue.
 package database
@@ -92,16 +92,6 @@ func (db *Database) JobAdd(j *model.Job) error {
 	var (
 		err error
 	)
-
-	// if err = enc.Encode(j); err != nil {
-	// 	db.log.Printf("[ERROR] Failed to serialize Job %d: %s\n",
-	// 		j.ID,
-	// 		err.Error())
-	// 	return err
-	// }
-
-	// //keybuf = []byte(strconv.FormatInt(j.ID, 10))
-	// valbuf = encbuf.Bytes()
 
 	err = db.db.Update(func(tx *bolt.Tx) error {
 		var (
@@ -261,3 +251,49 @@ func (db *Database) JobGetAll() ([]*model.Job, error) {
 
 	return jobs, err
 } // func (db *Database) JobGetAll() ([]*model.Job, error)
+
+// JobSave update a Job that is already saved in the database.
+func (db *Database) JobSave(j *model.Job) error {
+	var (
+		err            error
+		keybuf, valbuf []byte
+		encbuf         bytes.Buffer
+		enc            = gob.NewEncoder(&encbuf)
+	)
+
+	if j.ID == 0 {
+		err = errors.New("job has no ID")
+		return err
+	}
+
+	if err = enc.Encode(j); err != nil {
+		db.log.Printf("[ERROR] Failed to serialize Job: %s\n",
+			err.Error())
+		return err
+	}
+
+	keybuf = []byte(strconv.FormatInt(j.ID, 10))
+	valbuf = encbuf.Bytes()
+
+	err = db.db.Update(func(tx *bolt.Tx) error {
+		var (
+			ex     error
+			bucket *bolt.Bucket
+		)
+
+		if bucket, ex = tx.CreateBucketIfNotExists([]byte(bucketName)); ex != nil {
+			db.log.Printf("[CRITICAL] Failed to create Bucket %s: %s\n",
+				bucketName,
+				ex.Error())
+			return ex
+		} else if ex = bucket.Put(keybuf, valbuf); ex != nil {
+			db.log.Printf("[ERROR] Failed to store Job in DB: %s\n",
+				ex.Error())
+			return ex
+		}
+
+		return nil
+	})
+
+	return err
+} // func (db *Database) JobSave(j *model.Job) error
