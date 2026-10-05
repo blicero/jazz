@@ -2,7 +2,7 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 31. 08. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-09-12 14:00:54 krylon>
+// Time-stamp: <2026-10-05 10:17:34 krylon>
 
 // Package model defines data types used throughout the application
 package model
@@ -241,3 +241,20 @@ Deadline:       %s
 
 	return sb.String()
 } // func (j *Job) PrettyPrint() string
+
+// Environment returns a slice of "key=value" strings of the
+// Job's environment variables, suitable for setting the environment
+// of a exec.Cmd instance.
+func (j *Job) Environment() []string {
+	var env = make([]string, 0, len(j.Env))
+
+	for key, val := range j.Env {
+		env = append(
+			env,
+			fmt.Sprintf("%s=%s",
+				key,
+				val))
+	}
+
+	return env
+} // func (j *Job) Environment() []string
