@@ -2,13 +2,20 @@
 // -*- mode: go; coding: utf-8; -*-
 // Created on 01. 09. 2026 by Benjamin Walkenhorst
 // (c) 2026 Benjamin Walkenhorst
-// Time-stamp: <2026-10-01 10:46:19 krylon>
+// Time-stamp: <2026-10-05 11:10:29 krylon>
 
 // Package monitor implements the heart of the application, so to speak.
 package monitor
 
 import (
+	"context"
+	"fmt"
 	"log"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"runtime"
+	"strconv"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -18,7 +25,7 @@ import (
 	"github.com/blicero/jazz/logdomain"
 	"github.com/blicero/jazz/model"
 	"github.com/blicero/jazz/monitor/command"
-	"github.com/blicero/krylib"
+	"github.com/google/shlex"
 )
 
 // Monitor handles the Job queue, submitting job, executing them, cleaning
@@ -167,12 +174,141 @@ func (mon *Monitor) GetQueuedJobs() ([]*model.Job, error) {
 } // func (mon *Monitor) GetQueuedJobs() ([]*model.Job, error)
 
 // nolint: unused
-func (mon *Monitor) execute(job *model.Job) error {
-	// var (
-	// 	err error
-	// )
+func (mon *Monitor) executeJob(job *model.Job) error {
+	var (
+		err       error
+		spoolPath [][2]string
+	)
+
 	mon.log.Printf("[TRACE] Execute Job #%d (%s)\n",
 		job.ID,
 		job.Name)
-	return krylib.ErrNotImplemented
-} // func (mon *Monitor) execute(job *model.Job) error
+
+	spoolPath = make([][2]string, len(job.Steps))
+
+	job.TimeStarted = time.Now()
+
+	if err = mon.db.JobSave(job); err != nil {
+		mon.log.Printf("[ERROR] Failed to save Job status: %s\n",
+			err.Error())
+	}
+
+	for i := range len(job.Steps) {
+		spoolPath[i][0] = filepath.Join(
+			common.SpoolDir,
+			fmt.Sprintf("%08x.%02d.out",
+				job.ID,
+				i+1))
+
+		if err = mon.executeStep(job, i, spoolPath[i]); err != nil {
+			mon.log.Printf("[ERROR] Job %d Step %d failed: %s\n",
+				job.ID, i,
+				err.Error())
+		} else if err = mon.db.JobSave(job); err != nil {
+			mon.log.Printf("[ERROR] Failed to save Job status: %s\n",
+				err.Error())
+		}
+	}
+
+	job.TimeFinished = time.Now()
+
+	return nil
+} // func (mon *Monitor) executeJob(job *model.Job) error
+
+func (mon *Monitor) executeStep(job *model.Job, idx int, out [2]string) error {
+	var (
+		err            error
+		stdout, stderr *os.File
+		ctx            context.Context
+		cancel         context.CancelFunc
+		proc           *exec.Cmd
+		pieces         []string
+		command        = make([]string, 0, 4)
+	)
+
+	if job.Niceness > 0 {
+		command = append(
+			command,
+			"nice",
+			"-n",
+			strconv.FormatInt(job.Niceness, 10))
+	}
+
+	if runtime.GOOS == "linux" && (job.IOPrio == 1 || job.IOPrio == 3) {
+		command = append(
+			command,
+			"ionice",
+			"-c",
+			strconv.FormatInt(job.IOPrio, 10))
+	}
+
+	if pieces, err = shlex.Split(job.Steps[idx].Command); err != nil {
+		mon.log.Printf("[ERROR] Cannot tokenize command line %q: %s\n",
+			job.Steps[idx].Command,
+			err.Error())
+		return err
+	}
+
+	command = append(command, pieces...)
+	ctx = context.Background()
+
+	if !job.Deadline.IsZero() {
+		ctx, cancel = context.WithDeadline(ctx, job.Deadline)
+		defer cancel()
+	}
+
+	proc = exec.CommandContext(
+		ctx,
+		command[0],
+		command[1:]...)
+
+	proc.Env = job.Environment()
+	proc.Dir = job.WorkDir
+
+	if stdout, err = os.Create(out[0]); err != nil {
+		mon.log.Printf("[ERROR] Cannot open stdout %s: %s\n",
+			out[0],
+			err.Error())
+		return err
+	}
+
+	defer stdout.Close() // nolint: errcheck
+
+	if stderr, err = os.Create(out[1]); err != nil {
+		mon.log.Printf("[ERROR] Cannot open stderr %s: %s\n",
+			out[1],
+			err.Error())
+		return err
+	}
+
+	defer stderr.Close() // nolint: errcheck
+
+	proc.Stdout = stdout
+	proc.Stderr = stderr
+	job.Steps[idx].Stdout = out[0]
+	job.Steps[idx].Stderr = out[1]
+
+	var ticker = time.NewTicker(common.Timeout)
+	defer ticker.Stop()
+
+	if err = proc.Start(); err != nil {
+		mon.log.Printf("[ERROR] Failed to start Job %d step %d: %s\n",
+			job.ID, idx, err.Error())
+		return err
+	}
+
+	job.Steps[idx].TimeStarted = time.Now()
+
+	if err = proc.Wait(); err != nil {
+		mon.log.Printf("[ERROR] Error executing Job %d Step %d: %s\n",
+			job.ID,
+			idx,
+			err.Error())
+		return err
+	}
+
+	job.Steps[idx].TimeFinished = time.Now()
+	job.Steps[idx].Status = proc.ProcessState.ExitCode()
+
+	return nil
+} // func (mon *Monitor) executeStep(job *model.Job, idx int, out [2]string) error
